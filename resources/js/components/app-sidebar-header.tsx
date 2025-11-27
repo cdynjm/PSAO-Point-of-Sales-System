@@ -46,7 +46,7 @@ export function AppSidebarHeader({ breadcrumbs = [], user }: AppSidebarHeaderPro
     <DropdownMenu>
         <DropdownMenuTrigger className="outline-none flex items-center gap-2">
             {/* Name visible only on screens larger than md */}
-            <span className="hidden md:inline text-[12px] text-gray-600">{user.name}</span>
+            <span className="hidden md:inline text-[12px] text-gray-600 font-bold">{user.name}</span>
 
             {/* Avatar */}
             <Avatar className="h-8 w-8 cursor-pointer">
