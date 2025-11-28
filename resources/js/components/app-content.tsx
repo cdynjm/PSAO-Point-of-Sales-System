@@ -19,7 +19,7 @@ export function AppContent({ variant = 'header', children, ...props }: AppConten
                     {/* Fixed bottom navbar inside sidebar variant */}
                     <nav className="flex h-13 w-full items-center justify-around border-t border-t-gray-200 bg-white md:hidden">
                         <Link
-                            href="/dashboard"
+                            href={route('dashboard')}
                             className={`flex flex-col items-center text-sm ${
                                 url === '/dashboard' ? 'text-blue-500' : 'text-gray-600'
                             }`}

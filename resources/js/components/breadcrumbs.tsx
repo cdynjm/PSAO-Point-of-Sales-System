@@ -24,11 +24,11 @@ export function Breadcrumbs({ breadcrumbs }: { breadcrumbs: BreadcrumbItemType[]
                                                 </div>
                                                 <div className="md:hidden">
                                                     <div className="flex items-center gap-1">
-                                                        <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                                                            <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
+                                                        <div className="flex aspect-square size-8 items-center justify-center rounded-md">
+                                                            <AppLogoIcon className="size-7 fill-current text-white dark:text-black" />
                                                         </div>
                                                         <div className="ml-1 grid flex-1 text-left text-xs">
-                                                            <span className="mb-0.5 truncate leading-tight font-light">Laravel</span>
+                                                            <span className="mb-0.5 truncate leading-tight font-bold">POS - PSAO</span>
                                                         </div>
                                                     </div>
                                                 </div>

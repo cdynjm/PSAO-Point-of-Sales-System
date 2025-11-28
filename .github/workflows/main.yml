@@ -1,0 +1,68 @@
+on:
+  push:
+    branches:
+      - main
+
+name: 🚀 Deploy website on push
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout latest code
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      # 2️⃣ (Removed Doppler install and secrets download)
+      # Doppler will run on the server instead
+
+      # 3️⃣ Set up PHP (for Composer)
+      - name: 🧩 Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, intl
+          tools: composer
+
+      # 4️⃣ Install Composer dependencies
+      - name: 📦 Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      # 5️⃣ Set up Node.js (for Vite or Mix)
+      - name: ⚙️ Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 6️⃣ Install NPM dependencies
+      - name: 📦 Install NPM dependencies
+        run: npm install
+
+      # 7️⃣ Build your frontend assets
+      - name: 🏗️ Build assets
+        run: npm run build
+
+      # 8️⃣ Deploy to your server via rsync
+      - name: 📂 Upload files via rsync
+        uses: Burnett01/rsync-deployments@5.2
+        with:
+          switches: -avzr --exclude='.git*'
+          path: "./"
+          remote_path: ${{ secrets.TARGET }}
+          remote_host: ${{ secrets.SERVER }}
+          remote_user: ${{ secrets.USERNAME }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote_port: 22
+
+      - name: 🔐 Load Doppler secrets on server
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+          ssh -o StrictHostKeyChecking=no -i private_key.pem \
+            ${{ secrets.USERNAME }}@${{ secrets.SERVER }} \
+            "source ~/.bashrc && cd ${{ secrets.TARGET }} && DOPPLER_TOKEN=${{ secrets.DOPPLER_TOKEN }} doppler secrets download --no-file --format=env --project prime --config prd_deploy > .env"
+
+          rm -f private_key.pem
+
