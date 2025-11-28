@@ -62,7 +62,7 @@ jobs:
 
           ssh -o StrictHostKeyChecking=no -i private_key.pem \
             ${{ secrets.USERNAME }}@${{ secrets.SERVER }} \
-            "source ~/.bashrc && cd ${{ secrets.TARGET }} && DOPPLER_TOKEN=${{ secrets.DOPPLER_TOKEN }} doppler secrets download --no-file --format=env --project prime --config prd_deploy > .env"
+            "source ~/.bashrc && cd ${{ secrets.TARGET }} && DOPPLER_TOKEN=${{ secrets.DOPPLER_TOKEN }} doppler secrets download --no-file --format=env --project pos-psao --config prd_deploy > .env"
 
           rm -f private_key.pem
 
