@@ -41,13 +41,13 @@ export default function Items({ auth }: ItemsProps) {
 
     const startScanner = async () => {
         try {
+            // Ask permission first (required for iOS to reveal labels)
             await navigator.mediaDevices.getUserMedia({ video: true });
 
             const codeReader = new BrowserMultiFormatReader();
             codeReaderRef.current = codeReader;
 
             const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-
             console.log('Devices:', devices);
 
             const selected = devices.find((d) => d.label?.toLowerCase().includes('back')) || devices[0];
@@ -58,7 +58,10 @@ export default function Items({ auth }: ItemsProps) {
             }
 
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { deviceId: selected.deviceId },
+                video: {
+                    facingMode: { ideal: 'environment' },
+                    deviceId: { exact: selected.deviceId },
+                },
             });
 
             if (videoRef.current) {
@@ -196,7 +199,7 @@ export default function Items({ auth }: ItemsProps) {
                         <DialogDescription>Align the barcode inside the frame.</DialogDescription>
                     </DialogHeader>
 
-                    <video ref={videoRef} className="w-full rounded-md" />
+                    <video ref={videoRef} className="w-full rounded-md" playsInline autoPlay muted />
 
                     <DialogFooter>
                         <Button
