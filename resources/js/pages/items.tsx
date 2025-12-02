@@ -40,42 +40,41 @@ export default function Items({ auth }: ItemsProps) {
     const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
 
     const startScanner = async () => {
-        const codeReader = new BrowserMultiFormatReader();
-        codeReaderRef.current = codeReader;
-
         try {
-            const videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
+            await navigator.mediaDevices.getUserMedia({ video: true });
 
-            const selectedDevice =
-                videoInputDevices.find((d) => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('rear')) ||
-                videoInputDevices[0];
+            const codeReader = new BrowserMultiFormatReader();
+            codeReaderRef.current = codeReader;
 
-            if (videoRef.current && selectedDevice?.deviceId) {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { deviceId: selectedDevice.deviceId },
-                });
+            const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+
+            console.log('Devices:', devices);
+
+            const selected = devices.find((d) => d.label?.toLowerCase().includes('back')) || devices[0];
+
+            if (!selected) {
+                console.error('No camera found');
+                return;
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: selected.deviceId },
+            });
+
+            if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play();
-
-                codeReader
-                    .decodeOnceFromVideoDevice(selectedDevice.deviceId, videoRef.current)
-                    .then((result) => {
-                        if (result) {
-                            const scannedValue = result.getText();
-                            console.log('Scanned barcode:', scannedValue);
-                            setBarcode(scannedValue);
-                            setOpenScanner(false);
-                        }
-                    })
-                    .catch((err) => console.error('Scan error:', err))
-                    .finally(() => {
-                        // Stop the stream after scanning
-                        if (videoRef.current?.srcObject) {
-                            (videoRef.current.srcObject as MediaStream).getTracks().forEach((track) => track.stop());
-                            videoRef.current.srcObject = null;
-                        }
-                    });
             }
+
+            codeReader
+                .decodeOnceFromVideoDevice(selected.deviceId, videoRef.current!)
+                .then((result) => {
+                    if (result) {
+                        setBarcode(result.getText());
+                        setOpenScanner(false);
+                    }
+                })
+                .catch((err) => console.error('Scan error:', err));
         } catch (error) {
             console.error('Camera error:', error);
         }
