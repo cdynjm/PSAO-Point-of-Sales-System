@@ -38,7 +38,7 @@ export default function Items({ auth }: ItemsProps) {
     const [openScanner, setOpenScanner] = useState(false);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
-    const [facingMode, setFacingMode] = useState<'environment' | 'user'>('user');
+    const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
 
     const startScanner = useCallback(async () => {
         try {
