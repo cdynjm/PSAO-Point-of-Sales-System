@@ -40,67 +40,53 @@ export default function Items({ auth }: ItemsProps) {
     const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
 
     const startScanner = async () => {
-    try {
-        // Step 1 — Request permission so Safari reveals labels
-        await navigator.mediaDevices.getUserMedia({ video: true });
+        try {
+            // Ask permission first (required for iOS to reveal labels)
+            await navigator.mediaDevices.getUserMedia({ video: true });
 
-        const codeReader = new BrowserMultiFormatReader();
-        codeReaderRef.current = codeReader;
+            const codeReader = new BrowserMultiFormatReader();
+            codeReaderRef.current = codeReader;
 
-        // Step 2 — Get camera list
-        const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-        console.log("Devices:", devices);
+            const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+            console.log('Devices:', devices);
 
-        if (!devices.length) {
-            console.error("No cameras found");
-            return;
-        }
+            const selected = devices.find((d) => d.label?.toLowerCase().includes('back')) || devices[0];
 
-        // Step 3 — Choose rear camera if possible
-        const selected =
-            devices.find((d) =>
-                (d.label || "").toLowerCase().includes("back")
-            ) ||
-            devices.find((d) =>
-                (d.label || "").toLowerCase().includes("rear")
-            ) ||
-            devices[devices.length - 1];
+            if (!selected) {
+                console.error('No camera found');
+                return;
+            }
 
-        console.log("Selected camera:", selected);
+            // FIX #1 — remove "exact" (breaks iOS & some Android)
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    deviceId: { ideal: selected.deviceId },
+                    facingMode: { ideal: 'environment' },
+                },
+            });
 
-        // Step 4 — Start stream
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                deviceId: { ideal: selected.deviceId },
-                facingMode: { ideal: "environment" },
-            },
-        });
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
 
-        if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-            await videoRef.current.play();
-        }
+                // FIX #2 — iOS requires this to start video
+                videoRef.current.setAttribute('playsinline', 'true');
 
-        // Step 5 — Continuous decoding (REQUIRED for mobile)
-        codeReader.decodeFromVideoDevice(
-            selected.deviceId,
-            videoRef.current!,
-            (result) => {
+                await videoRef.current.play();
+            }
+
+            // FIX #3 — mobile needs continuous decoding, not once
+            codeReader.decodeFromVideoDevice(selected.deviceId, videoRef.current!, (result) => {
                 if (result) {
-                    console.log("Barcode:", result.getText());
                     setBarcode(result.getText());
                     setOpenScanner(false);
 
-                    
                     stream.getTracks().forEach((t) => t.stop());
                 }
-            }
-        );
-    } catch (error) {
-        console.error("Camera error:", error);
-    }
-};
-
+            });
+        } catch (error) {
+            console.error('Camera error:', error);
+        }
+    };
 
     const stopScanner = () => {
         if (videoRef.current?.srcObject) {
