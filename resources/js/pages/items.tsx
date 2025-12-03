@@ -75,7 +75,7 @@ export default function Items({ auth }: ItemsProps) {
 
     // Add a toggle function
     const toggleCamera = () => {
-        setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
+        setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
     };
 
     // Restart scanner automatically when facingMode or openScanner changes
