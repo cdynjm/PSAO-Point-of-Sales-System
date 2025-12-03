@@ -40,48 +40,67 @@ export default function Items({ auth }: ItemsProps) {
     const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
 
     const startScanner = async () => {
-        try {
-            // Ask permission first (required for iOS to reveal labels)
-            await navigator.mediaDevices.getUserMedia({ video: true });
+    try {
+        // Step 1 — Request permission so Safari reveals labels
+        await navigator.mediaDevices.getUserMedia({ video: true });
 
-            const codeReader = new BrowserMultiFormatReader();
-            codeReaderRef.current = codeReader;
+        const codeReader = new BrowserMultiFormatReader();
+        codeReaderRef.current = codeReader;
 
-            const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-            console.log('Devices:', devices);
+        // Step 2 — Get camera list
+        const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+        console.log("Devices:", devices);
 
-            const selected = devices.find((d) => d.label?.toLowerCase().includes('back')) || devices[0];
-
-            if (!selected) {
-                console.error('No camera found');
-                return;
-            }
-
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: { ideal: 'environment' },
-                    deviceId: { exact: selected.deviceId },
-                },
-            });
-
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-                await videoRef.current.play();
-            }
-
-            codeReader
-                .decodeOnceFromVideoDevice(selected.deviceId, videoRef.current!)
-                .then((result) => {
-                    if (result) {
-                        setBarcode(result.getText());
-                        setOpenScanner(false);
-                    }
-                })
-                .catch((err) => console.error('Scan error:', err));
-        } catch (error) {
-            console.error('Camera error:', error);
+        if (!devices.length) {
+            console.error("No cameras found");
+            return;
         }
-    };
+
+        // Step 3 — Choose rear camera if possible
+        const selected =
+            devices.find((d) =>
+                (d.label || "").toLowerCase().includes("back")
+            ) ||
+            devices.find((d) =>
+                (d.label || "").toLowerCase().includes("rear")
+            ) ||
+            devices[devices.length - 1];
+
+        console.log("Selected camera:", selected);
+
+        // Step 4 — Start stream
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                deviceId: { ideal: selected.deviceId },
+                facingMode: { ideal: "environment" },
+            },
+        });
+
+        if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            await videoRef.current.play();
+        }
+
+        // Step 5 — Continuous decoding (REQUIRED for mobile)
+        codeReader.decodeFromVideoDevice(
+            selected.deviceId,
+            videoRef.current!,
+            (result) => {
+                if (result) {
+                    console.log("Barcode:", result.getText());
+                    setBarcode(result.getText());
+                    setOpenScanner(false);
+
+                    
+                    stream.getTracks().forEach((t) => t.stop());
+                }
+            }
+        );
+    } catch (error) {
+        console.error("Camera error:", error);
+    }
+};
+
 
     const stopScanner = () => {
         if (videoRef.current?.srcObject) {
