@@ -57,15 +57,19 @@ export default function Items({ auth }: ItemsProps) {
                 return;
             }
 
+            // 🔥 FIX ONLY THIS PART (NotReadableError fix)
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: { ideal: 'environment' },
-                    deviceId: { exact: selected.deviceId },
+                    // ❌ exact → breaks on mobile
+                    // ✔ ideal → works everywhere
+                    deviceId: selected.deviceId ? { ideal: selected.deviceId } : undefined,
                 },
             });
 
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
+                videoRef.current.setAttribute('playsinline', 'true'); // iOS fix
                 await videoRef.current.play();
             }
 
