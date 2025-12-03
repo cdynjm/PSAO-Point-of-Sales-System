@@ -44,7 +44,7 @@ export default function Items({ auth }: ItemsProps) {
         // Request camera with environment mode only — required on iOS
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: { ideal: 'environment' }
+                facingMode: { ideal: 'user' }
             }
         });
 
