@@ -15,7 +15,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type User } from '@/types';
 import { Head } from '@inertiajs/react';
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { Camera } from 'lucide-react';
@@ -38,41 +38,46 @@ export default function Items({ auth }: ItemsProps) {
     const [openScanner, setOpenScanner] = useState(false);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
+    const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
 
-    const startScanner = async () => {
-    try {
-        // Request camera with environment mode only — required on iOS
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: { ideal: 'user' }
+    const startScanner = useCallback(async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode }, // <-- use state here
+            });
+
+            const codeReader = new BrowserMultiFormatReader();
+            codeReaderRef.current = codeReader;
+
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+                videoRef.current.setAttribute('playsinline', 'true');
+                await videoRef.current.play();
             }
-        });
 
-        const codeReader = new BrowserMultiFormatReader();
-        codeReaderRef.current = codeReader;
-
-        if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-            videoRef.current.setAttribute("playsinline", "true");
-            await videoRef.current.play();
+            codeReader
+                .decodeOnceFromVideoDevice(undefined, videoRef.current!)
+                .then((result) => {
+                    if (result) {
+                        setBarcode(result.getText());
+                        setOpenScanner(false);
+                    }
+                })
+                .catch((err) => console.error('Scan error:', err));
+        } catch (error) {
+            console.error('Camera error:', error);
         }
+    }, [facingMode]);
 
-        // You can still decode once, no change here
-        codeReader
-            .decodeOnceFromVideoDevice(undefined, videoRef.current!)
-            .then((result) => {
-                if (result) {
-                    setBarcode(result.getText());
-                    setOpenScanner(false);
-                }
-            })
-            .catch((err) => console.error("Scan error:", err));
+    // Add a toggle function
+    const toggleCamera = () => {
+        setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
+    };
 
-    } catch (error) {
-        console.error("Camera error:", error);
-    }
-};
-
+    // Restart scanner automatically when facingMode or openScanner changes
+    useEffect(() => {
+        if (openScanner) startScanner();
+    }, [openScanner, startScanner]);
 
     const stopScanner = () => {
         if (videoRef.current?.srcObject) {
@@ -192,7 +197,10 @@ export default function Items({ auth }: ItemsProps) {
 
                     <video ref={videoRef} className="w-full rounded-md" playsInline autoPlay muted />
 
-                    <DialogFooter>
+                    <DialogFooter className="flex flex-col gap-2">
+                        <Button variant="outline" onClick={toggleCamera}>
+                            Switch Camera ({facingMode === 'environment' ? 'Rear' : 'Front'})
+                        </Button>
                         <Button
                             variant="outline"
                             onClick={() => {
