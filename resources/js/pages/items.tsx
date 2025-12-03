@@ -42,8 +42,11 @@ export default function Items({ auth }: ItemsProps) {
 
     const startScanner = useCallback(async () => {
         try {
+            // Stop any previous stream first
+            stopScanner();
+
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode }, // <-- use state here
+                video: { facingMode }, // use current facingMode
             });
 
             const codeReader = new BrowserMultiFormatReader();
@@ -68,6 +71,7 @@ export default function Items({ auth }: ItemsProps) {
             console.error('Camera error:', error);
         }
     }, [facingMode]);
+
 
     // Add a toggle function
     const toggleCamera = () => {
