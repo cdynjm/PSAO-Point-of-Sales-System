@@ -38,7 +38,7 @@ export default function Items({ auth }: ItemsProps) {
     const [openScanner, setOpenScanner] = useState(false);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
-    const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+    const [facingMode, setFacingMode] = useState<'environment' | 'user'>('user');
 
     const startScanner = useCallback(async () => {
         try {
@@ -75,7 +75,7 @@ export default function Items({ auth }: ItemsProps) {
 
     // Add a toggle function
     const toggleCamera = () => {
-        setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
+        setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
     };
 
     // Restart scanner automatically when facingMode or openScanner changes
