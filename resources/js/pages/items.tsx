@@ -57,32 +57,27 @@ export default function Items({ auth }: ItemsProps) {
                 return;
             }
 
-            // FIX #1 — remove "exact" (breaks iOS & some Android)
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
-                    deviceId: { ideal: selected.deviceId },
                     facingMode: { ideal: 'environment' },
+                    deviceId: { exact: selected.deviceId },
                 },
             });
 
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
-
-                // FIX #2 — iOS requires this to start video
-                videoRef.current.setAttribute('playsinline', 'true');
-
                 await videoRef.current.play();
             }
 
-            // FIX #3 — mobile needs continuous decoding, not once
-            codeReader.decodeFromVideoDevice(selected.deviceId, videoRef.current!, (result) => {
-                if (result) {
-                    setBarcode(result.getText());
-                    setOpenScanner(false);
-
-                    stream.getTracks().forEach((t) => t.stop());
-                }
-            });
+            codeReader
+                .decodeOnceFromVideoDevice(selected.deviceId, videoRef.current!)
+                .then((result) => {
+                    if (result) {
+                        setBarcode(result.getText());
+                        setOpenScanner(false);
+                    }
+                })
+                .catch((err) => console.error('Scan error:', err));
         } catch (error) {
             console.error('Camera error:', error);
         }
