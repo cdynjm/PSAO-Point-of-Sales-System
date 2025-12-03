@@ -15,26 +15,64 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type User } from '@/types';
 import { Head } from '@inertiajs/react';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { Camera } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Items', href: route('items') },
+    {
+        title: 'Items',
+        href: route('items'),
+    },
 ];
 
 interface ItemsProps {
-    auth: { user: User };
+    auth: {
+        user: User;
+    };
 }
 
 export default function Items({ auth }: ItemsProps) {
     const [barcode, setBarcode] = useState('');
     const [openScanner, setOpenScanner] = useState(false);
-    const [facingMode, setFacingMode] = useState<"environment" | "user">("environment"); // rear by default
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
-    let currentStream: MediaStream | null = null;
+
+    const startScanner = async () => {
+    try {
+        // Request camera with environment mode only — required on iOS
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: { ideal: 'environment' }
+            }
+        });
+
+        const codeReader = new BrowserMultiFormatReader();
+        codeReaderRef.current = codeReader;
+
+        if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.setAttribute("playsinline", "true");
+            await videoRef.current.play();
+        }
+
+        // You can still decode once, no change here
+        codeReader
+            .decodeOnceFromVideoDevice(undefined, videoRef.current!)
+            .then((result) => {
+                if (result) {
+                    setBarcode(result.getText());
+                    setOpenScanner(false);
+                }
+            })
+            .catch((err) => console.error("Scan error:", err));
+
+    } catch (error) {
+        console.error("Camera error:", error);
+    }
+};
+
 
     const stopScanner = () => {
         if (videoRef.current?.srcObject) {
@@ -42,46 +80,6 @@ export default function Items({ auth }: ItemsProps) {
             stream.getTracks().forEach((track) => track.stop());
             videoRef.current.srcObject = null;
         }
-    };
-
-    const startScanner = async () => {
-        try {
-            stopScanner(); // stop previous stream if any
-
-            currentStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode }
-            });
-
-            const codeReader = new BrowserMultiFormatReader();
-            codeReaderRef.current = codeReader;
-
-            if (videoRef.current) {
-                videoRef.current.srcObject = currentStream;
-                videoRef.current.setAttribute("playsinline", "true");
-                await videoRef.current.play();
-            }
-
-            codeReader
-                .decodeOnceFromVideoDevice(undefined, videoRef.current!)
-                .then(result => {
-                    if (result) {
-                        setBarcode(result.getText());
-                        setOpenScanner(false);
-                    }
-                })
-                .catch(err => console.error("Scan error:", err));
-        } catch (error) {
-            console.error("Camera error:", error);
-        }
-    };
-
-    // Restart scanner whenever facingMode changes while modal is open
-    useEffect(() => {
-        if (openScanner) startScanner();
-    });
-
-    const toggleCamera = () => {
-        setFacingMode(prev => (prev === "environment" ? "user" : "environment"));
     };
 
     return (
@@ -95,7 +93,9 @@ export default function Items({ auth }: ItemsProps) {
                     {/* Add Dialog */}
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button size="sm" className="text-[12px]">+ Add</Button>
+                            <Button size="sm" className="text-[12px]">
+                                + Add
+                            </Button>
                         </DialogTrigger>
 
                         <DialogContent>
@@ -108,6 +108,7 @@ export default function Items({ auth }: ItemsProps) {
                                 {/* Barcode Number with Scanner Button */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Barcode Number</Label>
+
                                     <div className="relative">
                                         <Input
                                             value={barcode}
@@ -115,6 +116,7 @@ export default function Items({ auth }: ItemsProps) {
                                             placeholder="Enter barcode number"
                                             className="pr-10"
                                         />
+
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -190,10 +192,7 @@ export default function Items({ auth }: ItemsProps) {
 
                     <video ref={videoRef} className="w-full rounded-md" playsInline autoPlay muted />
 
-                    <DialogFooter className="flex flex-col gap-2">
-                        <Button variant="outline" onClick={toggleCamera}>
-                            Switch Camera ({facingMode === "environment" ? "Rear" : "Front"})
-                        </Button>
+                    <DialogFooter>
                         <Button
                             variant="outline"
                             onClick={() => {
