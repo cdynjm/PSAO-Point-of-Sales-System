@@ -30,7 +30,7 @@ interface ItemsProps {
         user: User;
     };
     items: {
-        id: number;
+        encrypted_id: string;
         productName: string;
         stocks: number;
         price: number;
@@ -43,7 +43,7 @@ export default function Items({ auth, items }: ItemsProps) {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-    const { data, setData, post, processing, reset, errors } = useForm({
+    const createForm = useForm({
         barcode: '',
         productName: '',
         stocks: '',
@@ -51,7 +51,7 @@ export default function Items({ auth, items }: ItemsProps) {
     });
 
     const addItem = () => {
-        post(route('items.store'), {
+        createForm.post(route('items.store'), {
             onSuccess: () => {
                 toast('Created', {
                     description: 'Item has been added successfully.',
@@ -60,7 +60,7 @@ export default function Items({ auth, items }: ItemsProps) {
                         onClick: () => console.log(''),
                     },
                 });
-                reset();
+                createForm.reset();
                 setOpenDialog(false);
             },
             onError: () => {
@@ -76,16 +76,16 @@ export default function Items({ auth, items }: ItemsProps) {
     };
 
     const editForm = useForm({
-        id: '',
+        barcode: '',
+        encrypted_id: '',
         productName: '',
         stocks: '',
         price: '',
-        barcode: '',
     });
 
     const openEditDialog = (item: ItemsProps['items'][number]) => {
         editForm.setData({
-            id: String(item.id),
+            encrypted_id: String(item.encrypted_id),
             productName: item.productName,
             stocks: String(item.stocks),
             price: String(item.price),
@@ -120,11 +120,11 @@ export default function Items({ auth, items }: ItemsProps) {
     };
 
     const deleteForm = useForm({
-        id: '',
+        encrypted_id: '',
     });
 
-    const openDeleteDialog = (id: number) => {
-        deleteForm.setData({ id: String(id) });
+    const openDeleteDialog = (encrypted_id: string) => {
+        deleteForm.setData({ encrypted_id: String(encrypted_id) });
         setDeleteDialogOpen(true);
     };
 
@@ -179,22 +179,22 @@ export default function Items({ auth, items }: ItemsProps) {
                                 <div className="flex flex-col gap-2">
                                     <Label>Barcode Number</Label>
                                     <Input
-                                        value={data.barcode}
-                                        onChange={(e) => setData('barcode', e.target.value)}
+                                        value={createForm.data.barcode}
+                                        onChange={(e) => createForm.setData('barcode', e.target.value)}
                                         placeholder="Enter barcode number"
                                     />
-                                    {errors.barcode && <span className="text-xs text-red-500">{errors.barcode}</span>}
+                                    {createForm.errors.barcode && <span className="text-xs text-red-500">{createForm.errors.barcode}</span>}
                                 </div>
 
                                 {/* Product Name */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Product Name</Label>
                                     <Input
-                                        value={data.productName}
-                                        onChange={(e) => setData('productName', e.target.value)}
+                                        value={createForm.data.productName}
+                                        onChange={(e) => createForm.setData('productName', e.target.value)}
                                         placeholder="Enter product name"
                                     />
-                                    {errors.productName && <span className="text-xs text-red-500">{errors.productName}</span>}
+                                    {createForm.errors.productName && <span className="text-xs text-red-500">{createForm.errors.productName}</span>}
                                 </div>
 
                                 {/* Stocks */}
@@ -202,11 +202,11 @@ export default function Items({ auth, items }: ItemsProps) {
                                     <Label>Stocks</Label>
                                     <Input
                                         type="number"
-                                        value={data.stocks}
-                                        onChange={(e) => setData('stocks', e.target.value)}
+                                        value={createForm.data.stocks}
+                                        onChange={(e) => createForm.setData('stocks', e.target.value)}
                                         placeholder="Enter stocks"
                                     />
-                                    {errors.stocks && <span className="text-xs text-red-500">{errors.stocks}</span>}
+                                    {createForm.errors.stocks && <span className="text-xs text-red-500">{createForm.errors.stocks}</span>}
                                 </div>
 
                                 {/* Price */}
@@ -214,11 +214,11 @@ export default function Items({ auth, items }: ItemsProps) {
                                     <Label>Price</Label>
                                     <Input
                                         type="number"
-                                        value={data.price}
-                                        onChange={(e) => setData('price', e.target.value)}
+                                        value={createForm.data.price}
+                                        onChange={(e) => createForm.setData('price', e.target.value)}
                                         placeholder="Enter price"
                                     />
-                                    {errors.price && <span className="text-xs text-red-500">{errors.price}</span>}
+                                    {createForm.errors.price && <span className="text-xs text-red-500">{createForm.errors.price}</span>}
                                 </div>
                             </div>
 
@@ -227,8 +227,8 @@ export default function Items({ auth, items }: ItemsProps) {
                                     <Button variant="outline">Cancel</Button>
                                 </DialogClose>
 
-                                <Button onClick={addItem} disabled={processing}>
-                                    {processing ? 'Saving...' : 'Save'}
+                                <Button onClick={addItem} disabled={createForm.processing}>
+                                    {createForm.processing ? 'Saving...' : 'Save'}
                                 </Button>
                             </DialogFooter>
                         </DialogContent>
@@ -324,7 +324,7 @@ export default function Items({ auth, items }: ItemsProps) {
                                 </TableRow>
                             ) : (
                                 items.map((item, index) => (
-                                    <TableRow key={item.id}>
+                                    <TableRow key={item.encrypted_id}>
                                         <TableCell className="p-2 text-center">{index + 1}</TableCell>
 
                                         <TableCell className="p-2 text-start whitespace-nowrap">
@@ -342,7 +342,7 @@ export default function Items({ auth, items }: ItemsProps) {
                                                 <Button size="sm" variant="outline" className="text-[12px]" onClick={() => openEditDialog(item)}>
                                                     Edit
                                                 </Button>
-                                                <Button size="sm" variant="outline" className="text-[12px] text-red-600" onClick={() => openDeleteDialog(item.id)}>
+                                                <Button size="sm" variant="outline" className="text-[12px] text-red-600" onClick={() => openDeleteDialog(item.encrypted_id)}>
                                                     Delete
                                                 </Button>
                                             </div>

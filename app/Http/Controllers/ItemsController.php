@@ -19,7 +19,10 @@ class ItemsController extends Controller
 
     public function index()
     {
-        $items = Items::orderBy('productName', 'asc')->get();
+        $items = Items::orderBy('productName', 'asc')->get()->map(function ($item) {
+            $item->encrypted_id = $this->aes->encrypt($item->id);
+            return $item;
+        });
 
         return Inertia::render('items', [
             'items' => $items,
@@ -38,7 +41,8 @@ class ItemsController extends Controller
 
     public function update(Request $request)
     {
-        $item = Items::where('id', $request->id)->update([
+        $id = $this->aes->decrypt($request->encrypted_id);
+        $item = Items::where('id', $id)->update([
                 'productName' => $request->productName,
                 'stocks' => $request->stocks,
                 'price' => $request->price,
@@ -49,6 +53,7 @@ class ItemsController extends Controller
 
     public function destroy(Request $request)
     {
-        Items::where('id', $request->id)->delete();
+        $id = $this->aes->decrypt($request->encrypted_id);
+        Items::where('id', $id)->delete();
     }
 }
