@@ -243,6 +243,12 @@ export default function Items({ auth, items }: ItemsProps) {
                             </DialogHeader>
 
                             <div className="grid gap-4 py-4">
+                                {/* Barcode */}
+                                <div className="flex flex-col gap-2">
+                                    <Label>Barcode Number</Label>
+                                    <Input value={editForm.data.barcode} onChange={(e) => editForm.setData('barcode', e.target.value)} />
+                                    {editForm.errors.barcode && <span className="text-xs text-red-500">{editForm.errors.barcode}</span>}
+                                </div>
                                 {/* Product Name */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Product Name</Label>
@@ -264,12 +270,6 @@ export default function Items({ auth, items }: ItemsProps) {
                                     {editForm.errors.price && <span className="text-xs text-red-500">{editForm.errors.price}</span>}
                                 </div>
 
-                                {/* Barcode */}
-                                <div className="flex flex-col gap-2">
-                                    <Label>Barcode</Label>
-                                    <Input value={editForm.data.barcode} onChange={(e) => editForm.setData('barcode', e.target.value)} />
-                                    {editForm.errors.barcode && <span className="text-xs text-red-500">{editForm.errors.barcode}</span>}
-                                </div>
                             </div>
 
                             <DialogFooter>
