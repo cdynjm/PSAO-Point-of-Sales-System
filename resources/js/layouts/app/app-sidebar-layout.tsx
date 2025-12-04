@@ -4,6 +4,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { type BreadcrumbItem, type User } from '@/types';
 import { type PropsWithChildren } from 'react';
+import { Toaster } from "@/components/ui/sonner"
 
 interface AppSidebarLayoutProps {
     breadcrumbs?: BreadcrumbItem[];
@@ -26,6 +27,7 @@ export default function AppSidebarLayout({
                 {/* Pass the user FROM auth */}
                 <AppSidebarHeader breadcrumbs={breadcrumbs} user={auth?.user} />
                 {children}
+                <Toaster position="top-right" richColors />
             </AppContent>
         </AppShell>
     );

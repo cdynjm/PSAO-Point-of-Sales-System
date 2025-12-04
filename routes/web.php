@@ -10,7 +10,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     Route::get('/items', [ItemsController::class, 'index'])->name('items');
+    Route::post('/items', [ItemsController::class, 'store'])->name('items.store');
+    Route::patch('/items', [ItemsController::class, 'update'])->name('items.update');
+    Route::delete('/items', [ItemsController::class, 'destroy'])->name('items.destroy');
 });
 
 require __DIR__.'/settings.php';

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Security\AESCipher;
 
+use App\Models\Items;
+
 class ItemsController extends Controller
 {
     protected AESCipher $aes;
@@ -17,6 +19,36 @@ class ItemsController extends Controller
 
     public function index()
     {
-        return Inertia::render('items');
+        $items = Items::orderBy('productName', 'asc')->get();
+
+        return Inertia::render('items', [
+            'items' => $items,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        Items::create([
+            'productName' => $request->productName,
+            'stocks' => $request->stocks,
+            'price' => $request->price,
+            'barcode' => $request->barcode,
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $item = Items::where('id', $request->id)->update([
+                'productName' => $request->productName,
+                'stocks' => $request->stocks,
+                'price' => $request->price,
+                'barcode' => $request->barcode,
+            ]);
+        
+    }
+
+    public function destroy(Request $request)
+    {
+        Items::where('id', $request->id)->delete();
     }
 }

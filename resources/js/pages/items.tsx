@@ -11,14 +11,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type User } from '@/types';
-import { Head } from '@inertiajs/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-import { BrowserMultiFormatReader } from '@zxing/browser';
-import { Camera } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -31,64 +29,127 @@ interface ItemsProps {
     auth: {
         user: User;
     };
+    items: {
+        id: number;
+        productName: string;
+        stocks: number;
+        price: number;
+        barcode: string;
+    }[];
 }
 
-export default function Items({ auth }: ItemsProps) {
-    const [barcode, setBarcode] = useState('');
-    const [openScanner, setOpenScanner] = useState(false);
-    const videoRef = useRef<HTMLVideoElement | null>(null);
-    const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
-    const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+export default function Items({ auth, items }: ItemsProps) {
+    const [openDialog, setOpenDialog] = useState(false);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-    const startScanner = useCallback(async () => {
-        try {
-            // Stop any previous stream first
-            stopScanner();
+    const { data, setData, post, processing, reset, errors } = useForm({
+        barcode: '',
+        productName: '',
+        stocks: '',
+        price: '',
+    });
 
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode }, // use current facingMode
-            });
-
-            const codeReader = new BrowserMultiFormatReader();
-            codeReaderRef.current = codeReader;
-
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-                videoRef.current.setAttribute('playsinline', 'true');
-                await videoRef.current.play();
-            }
-
-            codeReader
-                .decodeOnceFromVideoDevice(undefined, videoRef.current!)
-                .then((result) => {
-                    if (result) {
-                        setBarcode(result.getText());
-                        setOpenScanner(false);
-                    }
-                })
-                .catch((err) => console.error('Scan error:', err));
-        } catch (error) {
-            console.error('Camera error:', error);
-        }
-    }, [facingMode]);
-
-
-    // Add a toggle function
-    const toggleCamera = () => {
-        setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
+    const addItem = () => {
+        post(route('items.store'), {
+            onSuccess: () => {
+                toast('Success', {
+                    description: 'Item has been added successfully.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+                reset();
+                setOpenDialog(false);
+            },
+            onError: () => {
+                toast('Failed', {
+                    description: 'Failed to add item. Please try again.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+            },
+        });
     };
 
-    // Restart scanner automatically when facingMode or openScanner changes
-    useEffect(() => {
-        if (openScanner) startScanner();
-    }, [openScanner, startScanner]);
+    const editForm = useForm({
+        id: '',
+        productName: '',
+        stocks: '',
+        price: '',
+        barcode: '',
+    });
 
-    const stopScanner = () => {
-        if (videoRef.current?.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach((track) => track.stop());
-            videoRef.current.srcObject = null;
-        }
+    const openEditDialog = (item: ItemsProps['items'][number]) => {
+        editForm.setData({
+            id: String(item.id),
+            productName: item.productName,
+            stocks: String(item.stocks),
+            price: String(item.price),
+            barcode: item.barcode,
+        });
+
+        setEditDialogOpen(true);
+    };
+
+    const updateItem = () => {
+        editForm.patch(route('items.update'), {
+            onSuccess: () => {
+                toast('Updated', {
+                    description: 'Item updated successfully.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+                setEditDialogOpen(false);
+            },
+            onError: () => {
+                toast('Error', {
+                    description: 'Update failed. Please try again.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+            },
+        });
+    };
+
+    const deleteForm = useForm({
+        id: '',
+    });
+
+    const openDeleteDialog = (id: number) => {
+        deleteForm.setData({ id: String(id) });
+        setDeleteDialogOpen(true);
+    };
+
+    const deleteItem = () => {
+        deleteForm.delete(route('items.destroy'), {
+            onSuccess: () => {
+                toast('Deleted', {
+                    description: 'Item was deleted successfully.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+                setDeleteDialogOpen(false);
+            },
+            onError: () => {
+                toast('Failed', {
+                    description: 'Unable to delete item. Please try again.',
+                    action: {
+                        label: 'Close',
+                        onClick: () => console.log(''),
+                    },
+                });
+            },
+        });
     };
 
     return (
@@ -100,7 +161,7 @@ export default function Items({ auth }: ItemsProps) {
                     <Label className="text-sm font-bold text-gray-500">List of Items</Label>
 
                     {/* Add Dialog */}
-                    <Dialog>
+                    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                         <DialogTrigger asChild>
                             <Button size="sm" className="text-[12px]">
                                 + Add
@@ -114,47 +175,50 @@ export default function Items({ auth }: ItemsProps) {
                             </DialogHeader>
 
                             <div className="grid gap-4 py-4">
-                                {/* Barcode Number with Scanner Button */}
+                                {/* Barcode */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Barcode Number</Label>
-
-                                    <div className="relative">
-                                        <Input
-                                            value={barcode}
-                                            onChange={(e) => setBarcode(e.target.value)}
-                                            placeholder="Enter barcode number"
-                                            className="pr-10"
-                                        />
-
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setOpenScanner(true);
-                                                setTimeout(startScanner, 300); // give modal time to open
-                                            }}
-                                            className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-600 hover:text-black"
-                                        >
-                                            <Camera size={18} />
-                                        </button>
-                                    </div>
+                                    <Input
+                                        value={data.barcode}
+                                        onChange={(e) => setData('barcode', e.target.value)}
+                                        placeholder="Enter barcode number"
+                                    />
+                                    {errors.barcode && <span className="text-xs text-red-500">{errors.barcode}</span>}
                                 </div>
 
                                 {/* Product Name */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Product Name</Label>
-                                    <Input placeholder="Enter product name" />
+                                    <Input
+                                        value={data.productName}
+                                        onChange={(e) => setData('productName', e.target.value)}
+                                        placeholder="Enter product name"
+                                    />
+                                    {errors.productName && <span className="text-xs text-red-500">{errors.productName}</span>}
                                 </div>
 
                                 {/* Stocks */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Stocks</Label>
-                                    <Input type="number" placeholder="Enter stocks" />
+                                    <Input
+                                        type="number"
+                                        value={data.stocks}
+                                        onChange={(e) => setData('stocks', e.target.value)}
+                                        placeholder="Enter stocks"
+                                    />
+                                    {errors.stocks && <span className="text-xs text-red-500">{errors.stocks}</span>}
                                 </div>
 
                                 {/* Price */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Price</Label>
-                                    <Input type="number" placeholder="Enter price" />
+                                    <Input
+                                        type="number"
+                                        value={data.price}
+                                        onChange={(e) => setData('price', e.target.value)}
+                                        placeholder="Enter price"
+                                    />
+                                    {errors.price && <span className="text-xs text-red-500">{errors.price}</span>}
                                 </div>
                             </div>
 
@@ -162,7 +226,78 @@ export default function Items({ auth }: ItemsProps) {
                                 <DialogClose asChild>
                                     <Button variant="outline">Cancel</Button>
                                 </DialogClose>
-                                <Button>Save</Button>
+
+                                <Button onClick={addItem} disabled={processing}>
+                                    {processing ? 'Saving...' : 'Save'}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    {/* Edit Dialog */}
+                    <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Edit Item</DialogTitle>
+                                <DialogDescription>Update the item details below.</DialogDescription>
+                            </DialogHeader>
+
+                            <div className="grid gap-4 py-4">
+                                {/* Product Name */}
+                                <div className="flex flex-col gap-2">
+                                    <Label>Product Name</Label>
+                                    <Input value={editForm.data.productName} onChange={(e) => editForm.setData('productName', e.target.value)} />
+                                    {editForm.errors.productName && <span className="text-xs text-red-500">{editForm.errors.productName}</span>}
+                                </div>
+
+                                {/* Stocks */}
+                                <div className="flex flex-col gap-2">
+                                    <Label>Stocks</Label>
+                                    <Input type="number" value={editForm.data.stocks} onChange={(e) => editForm.setData('stocks', e.target.value)} />
+                                    {editForm.errors.stocks && <span className="text-xs text-red-500">{editForm.errors.stocks}</span>}
+                                </div>
+
+                                {/* Price */}
+                                <div className="flex flex-col gap-2">
+                                    <Label>Price</Label>
+                                    <Input type="number" value={editForm.data.price} onChange={(e) => editForm.setData('price', e.target.value)} />
+                                    {editForm.errors.price && <span className="text-xs text-red-500">{editForm.errors.price}</span>}
+                                </div>
+
+                                {/* Barcode */}
+                                <div className="flex flex-col gap-2">
+                                    <Label>Barcode</Label>
+                                    <Input value={editForm.data.barcode} onChange={(e) => editForm.setData('barcode', e.target.value)} />
+                                    {editForm.errors.barcode && <span className="text-xs text-red-500">{editForm.errors.barcode}</span>}
+                                </div>
+                            </div>
+
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                </DialogClose>
+                                <Button onClick={updateItem} disabled={editForm.processing}>
+                                    {editForm.processing ? 'Updating...' : 'Update'}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Delete Item</DialogTitle>
+                                <DialogDescription>Are you sure you want to delete this item? This action cannot be undone.</DialogDescription>
+                            </DialogHeader>
+
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                </DialogClose>
+
+                                <Button variant="destructive" onClick={deleteItem} disabled={deleteForm.processing}>
+                                    {deleteForm.processing ? 'Deleting...' : 'Delete'}
+                                </Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
@@ -172,51 +307,53 @@ export default function Items({ auth }: ItemsProps) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[50px]">#</TableHead>
-                                <TableHead className="text-nowrap">Product Name</TableHead>
-                                <TableHead className="w-[100px] text-nowrap">Stocks</TableHead>
+                                <TableHead className="w-[50px] text-center">#</TableHead>
+                                <TableHead className="text-start text-nowrap">Product Name</TableHead>
+                                <TableHead className="w-[100px] text-center text-nowrap">Stocks</TableHead>
                                 <TableHead className="text-center text-nowrap">Price</TableHead>
                                 <TableHead className="text-center text-nowrap">Barcode</TableHead>
                                 <TableHead className="text-center text-nowrap">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody></TableBody>
+                        <TableBody>
+                            {items.length === 0 ? (
+                                <TableRow>
+                                    <td colSpan={6} className="py-4 text-center text-gray-500">
+                                        No items found.
+                                    </td>
+                                </TableRow>
+                            ) : (
+                                items.map((item, index) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell className="p-2 text-center">{index + 1}</TableCell>
+
+                                        <TableCell className="p-2 text-start whitespace-nowrap">
+                                            <span className="ml-2">{item.productName}</span>
+                                        </TableCell>
+
+                                        <TableCell className="p-2 text-center">{item.stocks}</TableCell>
+
+                                        <TableCell className="p-2 text-center">₱{Number(item.price).toFixed(2)}</TableCell>
+
+                                        <TableCell className="p-2 text-center">{item.barcode}</TableCell>
+
+                                        <TableCell className="p-2 text-center">
+                                            <div className="flex justify-center gap-2">
+                                                <Button size="sm" variant="outline" className="text-[12px]" onClick={() => openEditDialog(item)}>
+                                                    Edit
+                                                </Button>
+                                                <Button size="sm" variant="outline" className="text-[12px] text-red-600" onClick={() => openDeleteDialog(item.id)}>
+                                                    Delete
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
                     </Table>
                 </div>
             </div>
-
-            {/* Scanner Dialog */}
-            <Dialog
-                open={openScanner}
-                onOpenChange={(open) => {
-                    if (!open) stopScanner();
-                    setOpenScanner(open);
-                }}
-            >
-                <DialogContent className="max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle>Scan Barcode</DialogTitle>
-                        <DialogDescription>Align the barcode inside the frame.</DialogDescription>
-                    </DialogHeader>
-
-                    <video ref={videoRef} className="w-full rounded-md" playsInline autoPlay muted />
-
-                    <DialogFooter className="flex flex-col gap-2">
-                        <Button variant="outline" onClick={toggleCamera}>
-                            Switch Camera ({facingMode === 'environment' ? 'Rear' : 'Front'})
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                stopScanner();
-                                setOpenScanner(false);
-                            }}
-                        >
-                            Close
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </AppLayout>
     );
 }
