@@ -11,7 +11,7 @@ import {
     DropdownMenuItem,
     DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import { Settings, LogOut, ChevronsUpDown } from "lucide-react";
 
@@ -50,7 +50,6 @@ export function AppSidebarHeader({ breadcrumbs = [], user }: AppSidebarHeaderPro
 
             {/* Avatar */}
             <Avatar className="h-8 w-8 cursor-pointer">
-                <AvatarImage src="/placeholder-user.jpg" />
                 <AvatarFallback>{user.name?.[0] ?? "U"}</AvatarFallback>
             </Avatar>
 
