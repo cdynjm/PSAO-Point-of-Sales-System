@@ -40,7 +40,7 @@ export default function BarcodeScannerPage() {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="category">Available Stocks</Label>
-                                <Input id="category" placeholder="Product category" disabled />
+                                <Input id="category" placeholder="0" disabled />
                             </div>
 
                             <div className="grid gap-2">
