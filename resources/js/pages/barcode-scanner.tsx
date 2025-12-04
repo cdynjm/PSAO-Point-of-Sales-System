@@ -25,8 +25,8 @@ export default function BarcodeScannerPage() {
                     </button>
                 </div>
             </header>
-            <div className="mt-20 flex min-h-screen w-full items-start justify-center bg-[#FDFDFC] p-6 text-[#1b1b18]">
-                <div className="grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="mt-15 flex min-h-screen w-full items-start justify-center bg-gray-50 p-6 text-[#1b1b18]">
+                <div className="grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-2 mt-5">
                     {/* LEFT COLUMN — PRODUCT DETAILS */}
                     <Card className="rounded-2xl shadow-none">
                         <CardHeader>
