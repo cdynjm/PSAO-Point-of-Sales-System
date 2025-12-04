@@ -53,7 +53,7 @@ export default function Items({ auth, items }: ItemsProps) {
     const addItem = () => {
         post(route('items.store'), {
             onSuccess: () => {
-                toast('Success', {
+                toast('Created', {
                     description: 'Item has been added successfully.',
                     action: {
                         label: 'Close',
