@@ -51,7 +51,7 @@ export default function Profile({ mustVerifyEmail, status, auth }: ProfileProps)
             <Head title="Profile settings" />
 
             <SettingsLayout>
-                <div className="space-y-6">
+               <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
 
                     <form onSubmit={submit} className="space-y-6">
