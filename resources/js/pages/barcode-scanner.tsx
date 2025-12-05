@@ -5,9 +5,17 @@ import { Label } from '@/components/ui/label';
 import { Link } from '@inertiajs/react';
 import { LucideShoppingCart } from 'lucide-react';
 import { useState } from 'react';
+import { User } from '@/types';
 
-export default function BarcodeScannerPage() {
+interface BarcodeScannerPageProps {
+    auth: {
+        user: User | null;
+    };
+}
+
+export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
     const [barcode, setBarcode] = useState('');
+    const isLoggedIn = !!auth.user;
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50">
@@ -22,7 +30,9 @@ export default function BarcodeScannerPage() {
                         </div>
                     </div>
                     <button className="rounded-md border px-4 py-2 text-sm hover:bg-gray-100">
-                        <Link href={route('login')}>Login</Link>
+                        <Link href={isLoggedIn ? route('dashboard') : route('login')}>
+                        {isLoggedIn ? 'Go to Dashboard' : 'Login'}
+                        </Link>
                     </button>
                 </div>
             </header>

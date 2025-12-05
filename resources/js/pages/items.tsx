@@ -306,7 +306,7 @@ export default function Items({ auth, items }: ItemsProps) {
                 <div>
                     <Table>
                         <TableHeader>
-                            <TableRow>
+                            <TableRow className='bg-gray-50'>
                                 <TableHead className="w-[50px] text-center">#</TableHead>
                                 <TableHead className="text-start text-nowrap">Product Name</TableHead>
                                 <TableHead className="w-[100px] text-center text-nowrap">Stocks</TableHead>
