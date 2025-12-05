@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type User } from '@/types';
+import { type BreadcrumbItem, type User, type Items } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -29,13 +29,7 @@ interface ItemsProps {
     auth: {
         user: User;
     };
-    items: {
-        encrypted_id: string;
-        productName: string;
-        stocks: number;
-        price: number;
-        barcode: string;
-    }[];
+    items: Items[];
 }
 
 export default function Items({ auth, items }: ItemsProps) {
