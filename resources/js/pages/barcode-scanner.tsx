@@ -110,7 +110,7 @@ export default function BarcodeScannerPage() {
             </main>
 
             {/* FOOTER FIXED AT BOTTOM */}
-            <Footer />
+            <Footer className='mb-10' />
         </div>
     );
 }

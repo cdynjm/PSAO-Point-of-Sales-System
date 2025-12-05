@@ -8,7 +8,7 @@ interface FooterProps {
 
 export default function GuestFooter({ className, year = new Date().getFullYear() }: FooterProps) {
     return (
-        <footer className={`mb-10 ${className}`}>
+        <footer className={`${className}`}>
             {/* Top Grid */}
 
             {/* Bottom Grid */}

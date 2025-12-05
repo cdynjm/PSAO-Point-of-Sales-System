@@ -8,7 +8,7 @@ interface FooterProps {
 
 export default function Footer({ className, year = new Date().getFullYear() }: FooterProps) {
     return (
-        <footer className={`mb-10 ${className}`}>
+        <footer className={`mb-0 ${className}`}>
             {/* Top Grid */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Left Logo */}
