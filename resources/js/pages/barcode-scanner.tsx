@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Link } from '@inertiajs/react';
 import { LucideShoppingCart } from 'lucide-react';
 import { useState } from 'react';
-import Footer from '@/components/footer';
 
 export default function BarcodeScannerPage() {
     const [barcode, setBarcode] = useState('');
@@ -109,8 +108,7 @@ export default function BarcodeScannerPage() {
                 </div>
             </main>
 
-            {/* FOOTER FIXED AT BOTTOM */}
-            <Footer className='mb-10' />
+           
         </div>
     );
 }
