@@ -49,9 +49,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
         if (!barcode) return;
 
         const handler = setTimeout(() => {
-            if (barcode.length >= 12 && barcode.length <= 13) {
                 scanBarcode(barcode);
-            }
         }, 500);
 
         return () => {
