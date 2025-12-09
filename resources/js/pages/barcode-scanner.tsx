@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ProductDetails, User } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import axios from 'axios';
-import { CheckCheck, MessageCircleWarningIcon, ScanLineIcon, ShoppingBagIcon, ShoppingCartIcon, Trash2Icon } from 'lucide-react';
+import { CheckCheck, Loader2, MessageCircleWarningIcon, ScanLineIcon, ShoppingBagIcon, ShoppingCartIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 interface BarcodeScannerPageProps {
@@ -22,6 +22,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
     const isLoggedIn = !!auth.user;
     const barcodeRef = useRef<HTMLInputElement>(null);
     const [scanStatus, setScanStatus] = useState<ScanStatus>('idle');
+    const [loading, setLoading] = useState(false);
 
     type ScanStatus = 'idle' | 'success' | 'error';
 
@@ -110,6 +111,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
     };
 
     const checkoutItems = () => {
+        setLoading(true);
         router.post(
             route('checkout.process'),
             {
@@ -144,6 +146,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                         },
                     });
                 },
+                onFinish: () => setLoading(false),
             },
         );
     };
@@ -226,8 +229,18 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                                     <small>Total: </small> ₱{total.toFixed(2)}
                                 </div>
 
-                                <Button className="float-end text-[12px]" disabled={items.length === 0} onClick={checkoutItems}>
-                                    <ShoppingBagIcon /> Checkout
+                                <Button className="float-end text-[12px]" disabled={items.length === 0 || loading} onClick={checkoutItems}>
+                                    {loading ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShoppingBagIcon className="h-4 w-4" />
+                                            Checkout
+                                        </>
+                                    )}
                                 </Button>
                             </CardContent>
                         </Card>
