@@ -198,14 +198,14 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                                     <TableBody>
                                         {items.length === 0 ? (
                                             <TableRow>
-                                                <td colSpan={6} className="py-4 text-center text-red-500">
-                                                    Please scan product barcode...
+                                                <td colSpan={6} className="py-4 text-[13px] text-center text-red-500">
+                                                    Cart is empty. Please scan a product barcode to add items.
                                                 </td>
                                             </TableRow>
                                         ) : (
                                             items.map((item) => (
                                                 <TableRow key={item.barcode} className="border-b">
-                                                    <TableCell className="text-nowrap">{item.name}</TableCell>
+                                                    <TableCell className="text-nowrap lg:text-wrap">{item.name}</TableCell>
                                                     <TableCell className="text-lg font-bold">{item.quantity}</TableCell>
                                                     <TableCell className="text-lg">₱{item.price}</TableCell>
                                                     <TableCell className="text-lg font-bold">₱{(item.price * item.quantity).toFixed(2)}</TableCell>
@@ -279,6 +279,10 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                                         }`}
                                     ></div>
                                 </div>
+
+                                <small className="mt-3 text-[12px] block text-center text-gray-600">
+                                    { 'Note: You will need a portable USB-compatible barcode scanner that can be connected to your computer or any supported device for the system’s scanning feature to work.'}
+                                </small>
 
                                 <Input
                                     id="barcode"
