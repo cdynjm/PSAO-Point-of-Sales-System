@@ -7,6 +7,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemsController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::post('/scan-barcode', [HomeController::class, 'scanBarcode'])->name('scan.barcode');
+Route::post('/checkout-process', [HomeController::class, 'checkoutProcess'])->name('checkout.process');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

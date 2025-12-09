@@ -49,3 +49,10 @@ export interface Items {
     price: number;
     barcode: string;
 }
+
+export interface ProductDetails {
+    barcode: string;
+    name: string;
+    price: number;
+    quantity: number;
+}

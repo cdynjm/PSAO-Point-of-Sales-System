@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Link } from '@inertiajs/react';
-import { LucideShoppingCart } from 'lucide-react';
-import { useState } from 'react';
-import { User } from '@/types';
-
+import { Toaster } from '@/components/ui/sonner';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ProductDetails, User } from '@/types';
+import { Link, router } from '@inertiajs/react';
+import { CheckCheck, ShoppingBagIcon, Trash2Icon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 interface BarcodeScannerPageProps {
     auth: {
         user: User | null;
@@ -15,111 +16,258 @@ interface BarcodeScannerPageProps {
 
 export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
     const [barcode, setBarcode] = useState('');
+    const [items, setItems] = useState<ProductDetails[]>([]);
     const isLoggedIn = !!auth.user;
+    const barcodeRef = useRef<HTMLInputElement>(null);
+    const [scanStatus, setScanStatus] = useState<ScanStatus>('idle');
+
+    type ScanStatus = 'idle' | 'success' | 'error';
+
+    useEffect(() => {
+        const input = barcodeRef.current;
+        input?.focus();
+        const handleBlur = () => input?.focus();
+        input?.addEventListener('blur', handleBlur);
+        const handleClick = () => input?.focus();
+        window.addEventListener('click', handleClick);
+        const handleVisibility = () => {
+            if (!document.hidden) input?.focus();
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        return () => {
+            input?.removeEventListener('blur', handleBlur);
+            window.removeEventListener('click', handleClick);
+            document.removeEventListener('visibilitychange', handleVisibility);
+        };
+    }, []);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            barcodeRef.current?.focus();
+        }, 50);
+
+        return () => clearTimeout(timeout);
+    }, []);
+
+    useEffect(() => {
+        if (barcode.length >= 12 && barcode.length <= 13) {
+            scanBarcode(barcode);
+        }
+    }, [barcode]);
+
+    const scanBarcode = async (code: string) => {
+        try {
+            const response = await fetch(route('scan.barcode'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({ barcode: code }),
+            });
+
+            const product = await response.json();
+
+            if (!product || !product.name) {
+                setScanStatus('error');
+                setTimeout(() => setScanStatus('idle'), 1000);
+            } else {
+                setScanStatus('success');
+                setItems((items) => {
+                    const existing = items.find((item) => item.barcode === code);
+
+                    if (existing) {
+                        return items.map((item) => (item.barcode === code ? { ...item, quantity: item.quantity + 1 } : item));
+                    }
+
+                    return [...items, { barcode: code, name: product.name, price: product.price, quantity: 1 }];
+                });
+
+                setTimeout(() => setScanStatus('idle'), 1000);
+            }
+
+            setBarcode('');
+        } catch (error) {
+            console.error('Scan error:', error);
+            setScanStatus('error');
+            setTimeout(() => setScanStatus('idle'), 1000);
+            setBarcode('');
+        }
+    };
+
+    const removeItem = (barcode: string) => {
+        setItems((items) => {
+            return items
+                .map((item) => (item.barcode === barcode ? { ...item, quantity: item.quantity - 1 } : item))
+                .filter((item) => item.quantity > 0);
+        });
+    };
+
+    const checkoutItems = () => {
+        router.post(
+            route('checkout.process'),
+            {
+                items: items.map((item) => ({
+                    barcode: item.barcode,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                })),
+            },
+            {
+                onSuccess: () => {
+                    toast('Success', {
+                        description: `Checkout completed. Your order has been processed with an amount of ₱${total.toFixed(2)}.`,
+                        duration: 10000,
+                        className: 'text-md p-4',
+                        action: {
+                            label: 'Close',
+                            onClick: () => console.log(''),
+                        },
+                    });
+                    setItems([]);
+                },
+                onError: (errors) => {
+                    toast('Checkout Failed', {
+                        description: errors.items ?? 'Checkout failed.',
+                        duration: 10000,
+                        className: 'text-lg p-4',
+                        action: {
+                            label: 'Close',
+                            onClick: () => console.log(''),
+                        },
+                    });
+                },
+            },
+        );
+    };
+
+    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50">
             {/* HEADER */}
             <header className="fixed top-0 left-0 z-50 w-full border-b border-gray-200 bg-white">
-                <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+                <div className="mx-auto flex max-w-full items-center justify-between px-6 py-3">
                     <div className="flex items-center gap-3">
                         <img src="/pos-logo.png" className="h-10 w-auto" alt="POS Logo" />
                         <div>
                             <div className="text-lg font-semibold text-[#1b1b18]">POS - PSAO</div>
-                            <div className="text-gray-600 text-[12px]">Point of Sale</div>
+                            <div className="text-[12px] text-gray-600">Point of Sale</div>
                         </div>
                     </div>
                     <button className="rounded-md border px-4 py-2 text-sm hover:bg-gray-100">
-                        <Link href={isLoggedIn ? route('dashboard') : route('login')}>
-                        {isLoggedIn ? 'Go to Dashboard' : 'Login'}
-                        </Link>
+                        <Link href={isLoggedIn ? route('dashboard') : route('login')}>{isLoggedIn ? 'Go to Dashboard' : 'Login'}</Link>
                     </button>
                 </div>
             </header>
 
             {/* MAIN CONTENT */}
-            <main className="pt-15 flex-1">
+            <main className="flex-1 pt-20">
                 <div className="flex w-full justify-center p-6 text-[#1b1b18]">
-                    <div className="grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-2 mt-5">
-
-                        {/* LEFT COLUMN */}
+                    <div className="mt-5 grid w-full max-w-full grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
+                        {/* LEFT COLUMN — PRODUCT TABLE */}
                         <Card className="rounded-2xl shadow-none">
                             <CardHeader>
-                                <CardTitle className="text-xl font-semibold">Product Details</CardTitle>
+                                <CardTitle className="text-xl font-semibold text-primary">Product Details</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="product_name">Product Name</Label>
-                                    <Input id="product_name" placeholder="Scanned product name" disabled />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="category">Available Stocks</Label>
-                                    <Input id="category" placeholder="0" disabled />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="price">Price</Label>
-                                    <Input id="price" placeholder="₱0.00" disabled />
+                                {/* TABLE */}
+                                <Table className="w-full text-sm">
+                                    <TableHeader className="border-b text-left">
+                                        <TableRow>
+                                            <TableHead className="">Product</TableHead>
+                                            <TableHead className="">Qty</TableHead>
+                                            <TableHead className="">Price</TableHead>
+                                            <TableHead className="">Subtotal</TableHead>
+                                            <TableHead className="text-center">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {items.map((item) => (
+                                            <TableRow key={item.barcode} className="border-b">
+                                                <TableCell className='text-nowrap'>{item.name}</TableCell>
+                                                <TableCell className='font-bold text-lg'>{item.quantity}</TableCell>
+                                                <TableCell className='text-lg'>₱{item.price}</TableCell>
+                                                <TableCell className='text-lg font-bold'>₱{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                                <TableCell className="text-center">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="destructive"
+                                                        className="text-[12px]"
+                                                        onClick={() => removeItem(item.barcode)}
+                                                    >
+                                                        <Trash2Icon />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+
+                                {/* TOTAL */}
+                                <div className="pt-3 text-right text-lg font-bold text-primary">
+                                    <small>Total: </small> ₱{total.toFixed(2)}
                                 </div>
 
-                                <hr className="my-8" />
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="quantity">Quantity</Label>
-                                    <Input id="quantity" type="number" placeholder='0' min={1} />
-                                </div>
-
-                                <div className="pt-4">
-                                    <Button className="flex w-full items-center gap-2 text-[13px] font-bold">
-                                        <LucideShoppingCart className="h-4 w-4" />
-                                        <span>Checkout Item</span>
-                                    </Button>
-                                </div>
+                                <Button className="float-end text-[12px]" disabled={items.length === 0} onClick={checkoutItems}>
+                                    <ShoppingBagIcon /> Checkout
+                                </Button>
                             </CardContent>
                         </Card>
 
-                        {/* RIGHT COLUMN */}
+                        {/* RIGHT COLUMN — BARCODE SCANNER */}
                         <Card className="rounded-2xl shadow-none">
                             <CardHeader>
-                                <CardTitle className="text-xl font-semibold">Barcode Scanner</CardTitle>
+                                <CardTitle className="text-xl font-semibold text-primary">Barcode Scanner</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="flex h-64 w-full items-center justify-center rounded-xl border border-gray-300 bg-[#ececec] text-sm text-gray-600">
-                                    <img src="/pos-logo.png" className="h-auto w-45" alt="" />
-                                </div>
+                            <CardContent>
+                                {/* ANIMATION */}
+                                <div className="relative mt-4 flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border bg-white text-sm text-gray-700">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        {scanStatus === 'success' && (
+                                            <>
+                                                <CheckCheck className="h-4 w-4 text-green-600" />
+                                                <span className="text-lg text-green-600">Added to cart</span>
+                                            </>
+                                        )}
+                                        {scanStatus === 'error' && <span className="text-lg text-red-600">Product not found</span>}
+                                        {scanStatus === 'idle' && <span className="text-lg text-gray-500">Please scan product barcode</span>}
+                                    </div>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="barcode">Scanned Barcode</Label>
-                                    <Input
-                                        id="barcode"
-                                        value={barcode}
-                                        onChange={(e) => setBarcode(e.target.value)}
-                                        placeholder="Awaiting scan..."
-                                        disabled
-                                    />
-                                </div>
-
-                                <div className="relative flex h-32 w-full items-center justify-center overflow-hidden rounded-xl border bg-white text-sm text-gray-700">
-                                    <span className="z-10">Please scan product's barcode...</span>
-                                    <div className="animate-scan absolute top-0 left-0 h-[3px] w-full bg-red-500"></div>
+                                    <div
+                                        className={`animate-scan absolute top-0 left-0 h-[3px] w-full ${
+                                            scanStatus === 'success' ? 'bg-green-500' : scanStatus === 'error' ? 'bg-red-600' : 'bg-red-500'
+                                        }`}
+                                    ></div>
                                 </div>
 
                                 <style>{`
                                     @keyframes scan {
                                         0% { transform: translateY(0); }
-                                        100% { transform: translateY(120px); }
+                                        100% { transform: translateY(250px); }
                                     }
                                     .animate-scan {
                                         animation: scan 2s linear infinite;
                                     }
                                 `}</style>
+
+                                <Input
+                                    id="barcode"
+                                    ref={barcodeRef}
+                                    value={barcode}
+                                    onChange={(e) => setBarcode(e.target.value)}
+                                    placeholder="Scan barcode..."
+                                    className="pointer-events-none text-lg opacity-0"
+                                    autoComplete="off"
+                                />
                             </CardContent>
                         </Card>
                     </div>
                 </div>
+                <Toaster position="top-right" richColors />
             </main>
-
-           
         </div>
     );
 }
-
