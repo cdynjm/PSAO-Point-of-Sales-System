@@ -51,6 +51,7 @@ export interface Items {
 }
 
 export interface ProductDetails {
+    encrypted_id: string;
     barcode: string;
     name: string;
     price: number;

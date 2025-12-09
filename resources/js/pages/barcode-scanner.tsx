@@ -74,12 +74,14 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                     const existing = items.find((item) => item.barcode === code);
 
                     if (existing) {
-                        return items.map((item) => (item.barcode === code ? { ...item, quantity: item.quantity + 1 } : item));
+                        return items.map((item) => (
+                            item.barcode === code ? { ...item, quantity: item.quantity + 1 } : item));
                     }
 
                     return [
                         ...items,
                         {
+                            encrypted_id: product.encrypted_id,
                             barcode: code,
                             name: product.name,
                             price: product.price,
@@ -114,6 +116,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
             route('checkout.process'),
             {
                 items: items.map((item) => ({
+                    encrypted_id: item.encrypted_id,
                     barcode: item.barcode,
                     name: item.name,
                     price: item.price,

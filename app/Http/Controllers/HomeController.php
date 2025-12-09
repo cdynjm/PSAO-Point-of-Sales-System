@@ -35,6 +35,7 @@ class HomeController extends Controller
         }
 
         return response()->json([
+            'encrypted_id' => $this->aes->encrypt($product->id),
             'name' => $product->productName,
             'price' => $product->price,
         ], 200);
@@ -46,7 +47,7 @@ class HomeController extends Controller
         $errors = [];
 
         foreach ($items as $item) {
-            $product = Items::where('barcode', $item['barcode'])->first();
+            $product = Items::where('id', $this->aes->decrypt($item['encrypted_id']))->first();
 
             if ($product->stocks < $item['quantity']) {
                 $errors[] = 'Insufficient stock for ' . $product->productName . 
