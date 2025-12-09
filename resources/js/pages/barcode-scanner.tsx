@@ -6,7 +6,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ProductDetails, User } from '@/types';
 import { Link, router } from '@inertiajs/react';
-import { CheckCheck, MessageCircleWarningIcon, ScanLineIcon, ShoppingBagIcon, Trash2Icon, ShoppingCartIcon } from 'lucide-react';
+import axios from 'axios';
+import { CheckCheck, MessageCircleWarningIcon, ScanLineIcon, ShoppingBagIcon, ShoppingCartIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 interface BarcodeScannerPageProps {
@@ -44,27 +45,30 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
     }, []);
 
     useEffect(() => {
-        if (barcode.length >= 12 && barcode.length <= 13) {
-            scanBarcode(barcode);
-        }
+        if (!barcode) return;
+
+        const handler = setTimeout(() => {
+            if (barcode.length >= 12 && barcode.length <= 13) {
+                scanBarcode(barcode);
+            }
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
     }, [barcode]);
 
     const scanBarcode = async (code: string) => {
         try {
-            const response = await fetch(route('scan.barcode'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({ barcode: code }),
+            const response = await axios.post(route('scan.barcode'), {
+                barcode: code,
             });
 
-            const product = await response.json();
+            const product = response.data;
 
             if (!product || !product.name) {
                 setScanStatus('error');
-                setTimeout(() => setScanStatus('idle'), 2000);
+                setTimeout(() => setScanStatus('idle'), 1000);
             } else {
                 setScanStatus('success');
                 setItems((items) => {
@@ -74,17 +78,25 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                         return items.map((item) => (item.barcode === code ? { ...item, quantity: item.quantity + 1 } : item));
                     }
 
-                    return [...items, { barcode: code, name: product.name, price: product.price, quantity: 1 }];
+                    return [
+                        ...items,
+                        {
+                            barcode: code,
+                            name: product.name,
+                            price: product.price,
+                            quantity: 1,
+                        },
+                    ];
                 });
 
-                setTimeout(() => setScanStatus('idle'), 2000);
+                setTimeout(() => setScanStatus('idle'), 1000);
             }
 
             setBarcode('');
         } catch (error) {
             console.error('Scan error:', error);
             setScanStatus('error');
-            setTimeout(() => setScanStatus('idle'), 2000);
+            setTimeout(() => setScanStatus('idle'), 1000);
             setBarcode('');
         }
     };
