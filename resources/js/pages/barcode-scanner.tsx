@@ -50,7 +50,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
 
         const handler = setTimeout(() => {
                 scanBarcode(barcode);
-        }, 500);
+        }, 100);
 
         return () => {
             clearTimeout(handler);
