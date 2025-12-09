@@ -104,3 +104,20 @@
         @apply bg-background text-foreground;
     }
 }
+
+@keyframes scan {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(200px); }
+}
+.animate-scan {
+    animation: scan 2s linear infinite;
+}
+.bg-diagonal-lines {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.05),
+    rgba(0, 0, 0, 0.05) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+}

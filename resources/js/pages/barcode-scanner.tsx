@@ -1,3 +1,4 @@
+import Footer from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ProductDetails, User } from '@/types';
 import { Link, router } from '@inertiajs/react';
-import { CheckCheck, ShoppingBagIcon, Trash2Icon } from 'lucide-react';
+import { CheckCheck, MessageCircleWarningIcon, ScanLineIcon, ShoppingBagIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 interface BarcodeScannerPageProps {
@@ -43,11 +44,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
     }, []);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            barcodeRef.current?.focus();
-        }, 50);
-
-        return () => clearTimeout(timeout);
+        barcodeRef.current?.focus();
     }, []);
 
     useEffect(() => {
@@ -71,7 +68,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
 
             if (!product || !product.name) {
                 setScanStatus('error');
-                setTimeout(() => setScanStatus('idle'), 1000);
+                setTimeout(() => setScanStatus('idle'), 2000);
             } else {
                 setScanStatus('success');
                 setItems((items) => {
@@ -84,14 +81,14 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                     return [...items, { barcode: code, name: product.name, price: product.price, quantity: 1 }];
                 });
 
-                setTimeout(() => setScanStatus('idle'), 1000);
+                setTimeout(() => setScanStatus('idle'), 2000);
             }
 
             setBarcode('');
         } catch (error) {
             console.error('Scan error:', error);
             setScanStatus('error');
-            setTimeout(() => setScanStatus('idle'), 1000);
+            setTimeout(() => setScanStatus('idle'), 2000);
             setBarcode('');
         }
     };
@@ -164,13 +161,15 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
             </header>
 
             {/* MAIN CONTENT */}
-            <main className="flex-1 pt-20">
+            <main className="flex-1 pt-15">
                 <div className="flex w-full justify-center p-6 text-[#1b1b18]">
                     <div className="mt-5 grid w-full max-w-full grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
                         {/* LEFT COLUMN — PRODUCT TABLE */}
                         <Card className="rounded-2xl shadow-none">
                             <CardHeader>
-                                <CardTitle className="text-xl font-semibold text-primary">Product Details</CardTitle>
+                                <CardTitle className="flex items-center gap-1 text-xl font-semibold text-primary">
+                                    <ShoppingBagIcon className="text-green-600" /> Product Details
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {/* TABLE */}
@@ -185,24 +184,32 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {items.map((item) => (
-                                            <TableRow key={item.barcode} className="border-b">
-                                                <TableCell className='text-nowrap'>{item.name}</TableCell>
-                                                <TableCell className='font-bold text-lg'>{item.quantity}</TableCell>
-                                                <TableCell className='text-lg'>₱{item.price}</TableCell>
-                                                <TableCell className='text-lg font-bold'>₱{(item.price * item.quantity).toFixed(2)}</TableCell>
-                                                <TableCell className="text-center">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="destructive"
-                                                        className="text-[12px]"
-                                                        onClick={() => removeItem(item.barcode)}
-                                                    >
-                                                        <Trash2Icon />
-                                                    </Button>
-                                                </TableCell>
+                                        {items.length === 0 ? (
+                                            <TableRow>
+                                                <td colSpan={6} className="py-4 text-center text-red-500">
+                                                    Please scan product barcode...
+                                                </td>
                                             </TableRow>
-                                        ))}
+                                        ) : (
+                                            items.map((item) => (
+                                                <TableRow key={item.barcode} className="border-b">
+                                                    <TableCell className="text-nowrap">{item.name}</TableCell>
+                                                    <TableCell className="text-lg font-bold">{item.quantity}</TableCell>
+                                                    <TableCell className="text-lg">₱{item.price}</TableCell>
+                                                    <TableCell className="text-lg font-bold">₱{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                                    <TableCell className="text-center">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="destructive"
+                                                            className="text-[12px]"
+                                                            onClick={() => removeItem(item.barcode)}
+                                                        >
+                                                            <Trash2Icon />
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
                                     </TableBody>
                                 </Table>
 
@@ -220,20 +227,28 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                         {/* RIGHT COLUMN — BARCODE SCANNER */}
                         <Card className="rounded-2xl shadow-none">
                             <CardHeader>
-                                <CardTitle className="text-xl font-semibold text-primary">Barcode Scanner</CardTitle>
+                                <CardTitle className="flex items-center gap-2 text-xl font-semibold text-primary">
+                                    <ScanLineIcon /> Barcode Scanner
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 {/* ANIMATION */}
-                                <div className="relative mt-4 flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border bg-white text-sm text-gray-700">
-                                    <div className="flex items-center gap-2 text-sm">
+                                <div className="bg-diagonal-lines relative mt-6 flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border bg-white text-sm text-gray-700">
+                                    <div className="z-10 flex items-center gap-2 text-sm">
                                         {scanStatus === 'success' && (
                                             <>
                                                 <CheckCheck className="h-4 w-4 text-green-600" />
-                                                <span className="text-lg text-green-600">Added to cart</span>
+                                                <span className="flex items-center gap-2 text-lg text-green-600">
+                                                    <ShoppingBagIcon /> Added to cart
+                                                </span>
                                             </>
                                         )}
-                                        {scanStatus === 'error' && <span className="text-lg text-red-600">Product not found</span>}
-                                        {scanStatus === 'idle' && <span className="text-lg text-gray-500">Please scan product barcode</span>}
+                                        {scanStatus === 'error' && (
+                                            <span className="flex items-center gap-2 text-lg text-red-600">
+                                                <MessageCircleWarningIcon /> Product not found
+                                            </span>
+                                        )}
+                                        {scanStatus === 'idle' && <span className="text-lg text-gray-500">Please scan product barcode...</span>}
                                     </div>
 
                                     <div
@@ -242,16 +257,6 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                                         }`}
                                     ></div>
                                 </div>
-
-                                <style>{`
-                                    @keyframes scan {
-                                        0% { transform: translateY(0); }
-                                        100% { transform: translateY(250px); }
-                                    }
-                                    .animate-scan {
-                                        animation: scan 2s linear infinite;
-                                    }
-                                `}</style>
 
                                 <Input
                                     id="barcode"
@@ -268,6 +273,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                 </div>
                 <Toaster position="top-right" richColors />
             </main>
+            <Footer className="mt-5 mb-10" />
         </div>
     );
 }

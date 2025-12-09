@@ -315,7 +315,7 @@ export default function Items({ auth, items }: ItemsProps) {
                             {items.length === 0 ? (
                                 <TableRow>
                                     <td colSpan={6} className="py-4 text-center text-gray-500">
-                                        No items found.
+                                        No items found
                                     </td>
                                 </TableRow>
                             ) : (
