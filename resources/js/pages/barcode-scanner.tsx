@@ -26,21 +26,17 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
 
     useEffect(() => {
         const input = barcodeRef.current;
-        input?.focus();
-        const handleBlur = () => input?.focus();
-        input?.addEventListener('blur', handleBlur);
-        const handleClick = () => input?.focus();
-        window.addEventListener('click', handleClick);
-        const handleVisibility = () => {
-            if (!document.hidden) input?.focus();
-        };
-        document.addEventListener('visibilitychange', handleVisibility);
+        if (!input) return;
 
-        return () => {
-            input?.removeEventListener('blur', handleBlur);
-            window.removeEventListener('click', handleClick);
-            document.removeEventListener('visibilitychange', handleVisibility);
-        };
+        if (!/Mobi|Android/i.test(navigator.userAgent)) {
+            input.focus();
+            const handleBlur = () => input.focus();
+            input.addEventListener('blur', handleBlur);
+
+            return () => {
+                input.removeEventListener('blur', handleBlur);
+            };
+        }
     }, []);
 
     useEffect(() => {
@@ -233,7 +229,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                             </CardHeader>
                             <CardContent>
                                 {/* ANIMATION */}
-                                <div className="bg-diagonal-lines relative mt-6 flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border bg-white text-sm text-gray-700">
+                                <div className="bg-diagonal-lines relative flex h-50 w-full items-center justify-center overflow-hidden rounded-xl border bg-white text-sm text-gray-700">
                                     <div className="z-10 flex items-center gap-2 text-sm">
                                         {scanStatus === 'success' && (
                                             <>
@@ -264,7 +260,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                                     value={barcode}
                                     onChange={(e) => setBarcode(e.target.value)}
                                     placeholder="Scan barcode..."
-                                    className="pointer-events-none text-lg opacity-0"
+                                    className="pointer-events-none absolute h-0 w-0 opacity-0"
                                     autoComplete="off"
                                 />
                             </CardContent>
