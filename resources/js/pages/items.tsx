@@ -199,6 +199,7 @@ export default function Items({ auth, items }: ItemsProps) {
                                         value={createForm.data.stocks}
                                         onChange={(e) => createForm.setData('stocks', e.target.value)}
                                         placeholder="Enter stocks"
+                                        min={0}
                                     />
                                     {createForm.errors.stocks && <span className="text-xs text-red-500">{createForm.errors.stocks}</span>}
                                 </div>
@@ -211,6 +212,7 @@ export default function Items({ auth, items }: ItemsProps) {
                                         value={createForm.data.price}
                                         onChange={(e) => createForm.setData('price', e.target.value)}
                                         placeholder="Enter price"
+                                        min={0}
                                     />
                                     {createForm.errors.price && <span className="text-xs text-red-500">{createForm.errors.price}</span>}
                                 </div>
@@ -253,14 +255,14 @@ export default function Items({ auth, items }: ItemsProps) {
                                 {/* Stocks */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Stocks</Label>
-                                    <Input type="number" value={editForm.data.stocks} onChange={(e) => editForm.setData('stocks', e.target.value)} />
+                                    <Input type="number" value={editForm.data.stocks} onChange={(e) => editForm.setData('stocks', e.target.value)} min={0} />
                                     {editForm.errors.stocks && <span className="text-xs text-red-500">{editForm.errors.stocks}</span>}
                                 </div>
 
                                 {/* Price */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Price</Label>
-                                    <Input type="number" value={editForm.data.price} onChange={(e) => editForm.setData('price', e.target.value)} />
+                                    <Input type="number" value={editForm.data.price} onChange={(e) => editForm.setData('price', e.target.value)} min={0} />
                                     {editForm.errors.price && <span className="text-xs text-red-500">{editForm.errors.price}</span>}
                                 </div>
 
