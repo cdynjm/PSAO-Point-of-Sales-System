@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ProductDetails, User } from '@/types';
 import { Link, router } from '@inertiajs/react';
-import { CheckCheck, MessageCircleWarningIcon, ScanLineIcon, ShoppingBagIcon, Trash2Icon } from 'lucide-react';
+import { CheckCheck, MessageCircleWarningIcon, ScanLineIcon, ShoppingBagIcon, Trash2Icon, ShoppingCartIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 interface BarcodeScannerPageProps {
@@ -164,7 +164,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                         <Card className="rounded-2xl shadow-none">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-1 text-xl font-semibold text-primary">
-                                    <ShoppingBagIcon className="text-green-600" /> Product Details
+                                    <ShoppingCartIcon className="text-green-600" /> Your Cart
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
