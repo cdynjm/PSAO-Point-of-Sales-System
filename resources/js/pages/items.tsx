@@ -331,11 +331,11 @@ export default function Items({ auth, items }: ItemsProps) {
                                 <TableRow key={item.encrypted_id}>
                                     <TableCell className="p-2 text-center">{index + 1}</TableCell>
 
-                                    <TableCell className="p-2 text-start whitespace-nowrap">
+                                    <TableCell className={`p-2 text-start whitespace-nowrap ${item.stocks !== 0 ? '' : 'text-red-600'}`}>
                                         <span className="ml-2">{item.productName}</span>
                                     </TableCell>
 
-                                    <TableCell className="p-2 text-center font-bold text-lg text-primary bg-green-100">{item.stocks}</TableCell>
+                                    <TableCell className={`p-2 text-center font-bold text-lg text-primary ${item.stocks !== 0 ? 'bg-green-100' : 'bg-red-200'}` }>{item.stocks}</TableCell>
 
                                     <TableCell className="p-2 text-center">₱{Number(item.price).toFixed(2)}</TableCell>
 
