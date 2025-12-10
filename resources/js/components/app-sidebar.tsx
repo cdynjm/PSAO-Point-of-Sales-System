@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, PackageSearch, ScanLineIcon } from 'lucide-react';
+import { LayoutGrid, PackageSearch, ScanLineIcon, HistoryIcon } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -18,10 +18,15 @@ const mainNavItems: NavItem[] = [
         icon: PackageSearch,
     },
     {
+        title: 'Transactions',
+        href: route('transactions'),
+        icon: HistoryIcon,
+    },
+    {
         title: 'Scanner',
         href: route('home'),
         icon: ScanLineIcon,
-    }
+    },
 
 ];
 

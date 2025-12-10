@@ -5,7 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemsController;
-
+use App\Http\Controllers\TransactionsController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/scan-barcode', [HomeController::class, 'scanBarcode'])->name('scan.barcode');
@@ -18,6 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/items', [ItemsController::class, 'store'])->name('items.store');
     Route::patch('/items', [ItemsController::class, 'update'])->name('items.update');
     Route::delete('/items', [ItemsController::class, 'destroy'])->name('items.destroy');
+
+    Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions');
 });
 
 require __DIR__.'/settings.php';

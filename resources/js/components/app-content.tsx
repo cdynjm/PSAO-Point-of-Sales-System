@@ -1,6 +1,6 @@
 import { SidebarInset } from '@/components/ui/sidebar';
 import { Link, usePage } from '@inertiajs/react';
-import { Home, PackageSearch, ScanLineIcon } from 'lucide-react';
+import { Home, PackageSearch, ScanLineIcon, HistoryIcon } from 'lucide-react';
 import * as React from 'react';
 
 interface AppContentProps extends React.ComponentProps<'main'> {
@@ -31,6 +31,7 @@ export function AppContent({ variant = 'header', children, ...props }: AppConten
     const navItems: NavItem[] = [
         { label: 'Home', href: route('dashboard'), icon: Home },
         { label: 'Items', href: route('items'), icon: PackageSearch },
+        { label: 'Transactions', href: route('transactions'), icon: HistoryIcon },
         { label: 'Scanner', href: route('home'), icon: ScanLineIcon },
     ];
 

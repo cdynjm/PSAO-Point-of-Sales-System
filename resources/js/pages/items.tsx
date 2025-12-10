@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type User, type Items } from '@/types';
+import { type BreadcrumbItem, type Items, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -255,17 +255,26 @@ export default function Items({ auth, items }: ItemsProps) {
                                 {/* Stocks */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Stocks</Label>
-                                    <Input type="number" value={editForm.data.stocks} onChange={(e) => editForm.setData('stocks', e.target.value)} min={0} />
+                                    <Input
+                                        type="number"
+                                        value={editForm.data.stocks}
+                                        onChange={(e) => editForm.setData('stocks', e.target.value)}
+                                        min={0}
+                                    />
                                     {editForm.errors.stocks && <span className="text-xs text-red-500">{editForm.errors.stocks}</span>}
                                 </div>
 
                                 {/* Price */}
                                 <div className="flex flex-col gap-2">
                                     <Label>Price</Label>
-                                    <Input type="number" value={editForm.data.price} onChange={(e) => editForm.setData('price', e.target.value)} min={0} />
+                                    <Input
+                                        type="number"
+                                        value={editForm.data.price}
+                                        onChange={(e) => editForm.setData('price', e.target.value)}
+                                        min={0}
+                                    />
                                     {editForm.errors.price && <span className="text-xs text-red-500">{editForm.errors.price}</span>}
                                 </div>
-
                             </div>
 
                             <DialogFooter>
@@ -299,56 +308,59 @@ export default function Items({ auth, items }: ItemsProps) {
                     </Dialog>
                 </div>
 
-                <div>
-                    <Table>
-                        <TableHeader>
-                            <TableRow className='bg-gray-50'>
-                                <TableHead className="w-[50px] text-center">#</TableHead>
-                                <TableHead className="text-start text-nowrap">Product Name</TableHead>
-                                <TableHead className="w-[100px] text-center text-nowrap">Stocks</TableHead>
-                                <TableHead className="text-center text-nowrap">Price</TableHead>
-                                <TableHead className="text-center text-nowrap">Barcode</TableHead>
-                                <TableHead className="text-center text-nowrap">Actions</TableHead>
+                <Table>
+                    <TableHeader>
+                        <TableRow className="bg-gray-50">
+                            <TableHead className="w-[50px] text-center">#</TableHead>
+                            <TableHead className="text-start text-nowrap">Product Name</TableHead>
+                            <TableHead className="w-[100px] text-center text-nowrap">Stocks</TableHead>
+                            <TableHead className="text-center text-nowrap">Price</TableHead>
+                            <TableHead className="text-center text-nowrap">Barcode</TableHead>
+                            <TableHead className="text-center text-nowrap">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {items.length === 0 ? (
+                            <TableRow>
+                                <td colSpan={6} className="py-4 text-center text-gray-500">
+                                    No items found
+                                </td>
                             </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {items.length === 0 ? (
-                                <TableRow>
-                                    <td colSpan={6} className="py-4 text-center text-gray-500">
-                                        No items found
-                                    </td>
+                        ) : (
+                            items.map((item, index) => (
+                                <TableRow key={item.encrypted_id}>
+                                    <TableCell className="p-2 text-center">{index + 1}</TableCell>
+
+                                    <TableCell className="p-2 text-start whitespace-nowrap">
+                                        <span className="ml-2">{item.productName}</span>
+                                    </TableCell>
+
+                                    <TableCell className="p-2 text-center">{item.stocks}</TableCell>
+
+                                    <TableCell className="p-2 text-center">₱{Number(item.price).toFixed(2)}</TableCell>
+
+                                    <TableCell className="p-2 text-center">{item.barcode}</TableCell>
+
+                                    <TableCell className="p-2 text-center">
+                                        <div className="flex justify-center gap-2">
+                                            <Button size="sm" variant="outline" className="text-[12px]" onClick={() => openEditDialog(item)}>
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="text-[12px] text-red-600"
+                                                onClick={() => openDeleteDialog(item.encrypted_id)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    </TableCell>
                                 </TableRow>
-                            ) : (
-                                items.map((item, index) => (
-                                    <TableRow key={item.encrypted_id}>
-                                        <TableCell className="p-2 text-center">{index + 1}</TableCell>
-
-                                        <TableCell className="p-2 text-start whitespace-nowrap">
-                                            <span className="ml-2">{item.productName}</span>
-                                        </TableCell>
-
-                                        <TableCell className="p-2 text-center">{item.stocks}</TableCell>
-
-                                        <TableCell className="p-2 text-center">₱{Number(item.price).toFixed(2)}</TableCell>
-
-                                        <TableCell className="p-2 text-center">{item.barcode}</TableCell>
-
-                                        <TableCell className="p-2 text-center">
-                                            <div className="flex justify-center gap-2">
-                                                <Button size="sm" variant="outline" className="text-[12px]" onClick={() => openEditDialog(item)}>
-                                                    Edit
-                                                </Button>
-                                                <Button size="sm" variant="outline" className="text-[12px] text-red-600" onClick={() => openDeleteDialog(item.encrypted_id)}>
-                                                    Delete
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
             </div>
         </AppLayout>
     );

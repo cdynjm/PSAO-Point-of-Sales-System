@@ -9,7 +9,6 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Transactions, User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import FormattedDate from '@/components/formatted-date';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -77,72 +76,11 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
         return daily;
     }, [filteredTransactions, selectedYear, selectedMonth]);
 
-    const monthlyTransactions = useMemo(() => {
-        const y = Number(selectedYear);
-        const m = Number(selectedMonth);
-
-        return transactions.filter((t) => {
-            const d = new Date(t.created_at);
-            return d.getFullYear() === y && d.getMonth() === m;
-        });
-    }, [transactions, selectedYear, selectedMonth]);
-
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="Dashboard" />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <Card className="mt-4 border bg-white shadow-none">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-semibold text-primary">
-                            Transactions for {new Date(0, Number(selectedMonth)).toLocaleString('default', { month: 'long' })} {selectedYear}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>#</TableHead>
-                                    <TableHead className='text-nowrap'>Receipt #</TableHead>
-                                    <TableHead className='text-center text-nowrap'>Total Amount</TableHead>
-                                    <TableHead className='text-center text-nowrap'>Total Items</TableHead>
-                                    <TableHead>Date Processed</TableHead>
-                                </TableRow>
-                            </TableHeader>
-
-                            <TableBody>
-                                {monthlyTransactions.length > 0 ? (
-                                    monthlyTransactions.map((t, index) => (
-                                        <TableRow key={t.encrypted_id}>
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell className='text-nowrap'>{t.receiptNumber}</TableCell>
-                                            <TableCell className='text-center text-nowrap'>₱ {t.totalPayment}</TableCell>
-                                            <TableCell className='text-center text-nowrap'>{t.totalItems}</TableCell>
-                                            <TableCell className='text-nowrap'><FormattedDate date={t.created_at} /></TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="py-6 text-center text-gray-500">
-                                            No transactions found for this month.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-
-                                {/* TOTAL ROW */}
-                                {monthlyTransactions.length > 0 && (
-                                    <TableRow className="border-t font-semibold">
-                                        <TableCell>Total</TableCell>
-                                        <TableCell>-</TableCell>
-                                        <TableCell className='text-center'>₱ {monthlyTransactions.reduce((sum, t) => sum + Number(t.totalPayment), 0).toFixed(2)}</TableCell>
-                                        <TableCell className='text-center'>{monthlyTransactions.reduce((sum, t) => sum + t.totalItems, 0)}</TableCell>
-                                        <TableCell>-</TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
                 {/* YEARLY SALES ANALYTICS */}
                 <Card className="rounded-lg border bg-white shadow-none">
                     <CardHeader className="flex flex-row items-center justify-between">
