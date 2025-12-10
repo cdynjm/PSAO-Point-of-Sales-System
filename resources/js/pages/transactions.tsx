@@ -1,5 +1,3 @@
-'use client';
-
 import FormattedDate from '@/components/formatted-date';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

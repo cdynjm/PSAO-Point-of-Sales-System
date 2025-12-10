@@ -48,44 +48,53 @@ class HomeController extends Controller
         $items = $request->items;
         $errors = [];
         $totalItem = 0;
-
-        $transaction = Transactions::create([
-            'receiptNumber' => 'RCPT-' . strtoupper(uniqid()),
-            'totalPayment' => $request->totalPayment,
-        ]);
+        $validItems = [];
 
         foreach ($items as $item) {
             $product = Items::where('id', $this->aes->decrypt($item['encrypted_id']))->first();
 
-            if ($product->stocks < $item['quantity']) {
-                $errors[] = 'Insufficient stock for ' . $product->productName . 
-                            ' (Requested: ' . $item['quantity'] . ', Available: ' . $product->stocks . ')';
-                continue;
+            if (!$product || $product->stocks < $item['quantity']) {
+                $errors[] = 'Insufficient stock for ' . ($product?->productName ?? 'Unknown') . 
+                            ' (Requested: ' . $item['quantity'] . ', Available: ' . ($product?->stocks ?? 0) . ')';
+
+                return back()->withErrors(['items' => $errors]);
             }
 
-            $product->decrement('stocks', $item['quantity']);
-
-            SalesInventory::create([
-                'items_id' => $product->id,
-                'transactions_id' => $transaction->id,
+            $validItems[] = [
+                'product' => $product,
                 'quantity' => $item['quantity'],
-                'price' => $product->price,
-                'barcode' => $product->barcode,
-                'sold' => now(),
+            ];
+        }
+
+        if(empty($errors)) {
+            $transaction = Transactions::create([
+                'receiptNumber' => 'RCPT-' . strtoupper(uniqid()),
+                'totalPayment' => $request->totalPayment,
             ]);
 
-            $totalItem += $item['quantity'];
+            foreach ($validItems as $vItem) {
+                $product = $vItem['product'];
+                $quantity = $vItem['quantity'];
 
+                $product->decrement('stocks', $quantity);
+
+                SalesInventory::create([
+                    'items_id' => $product->id,
+                    'transactions_id' => $transaction->id,
+                    'quantity' => $quantity,
+                    'price' => $product->price,
+                    'barcode' => $product->barcode,
+                    'sold' => now(),
+                ]);
+
+                $totalItem += $quantity;
+            }
+
+            $transaction->update([
+                'totalItems' => $totalItem,
+            ]);
         }
-
-        $transaction->update([
-            'totalItems' => $totalItem,
-        ]);
-        
-        if (!empty($errors)) {
-            return back()->withErrors(['items' => $errors]);
-        }
-
+    
         return back()->with('success', 'Checkout completed.');
     }
 }
