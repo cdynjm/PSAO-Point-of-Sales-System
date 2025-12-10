@@ -76,3 +76,4 @@ export interface SalesInventory {
     sold: string;
     items?: Items;
 }
+

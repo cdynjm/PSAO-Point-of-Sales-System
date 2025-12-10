@@ -9,6 +9,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Transactions, User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import FormattedDate from '@/components/formatted-date';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -117,7 +118,7 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                             <TableCell>{t.receiptNumber}</TableCell>
                                             <TableCell className='text-center'>₱ {t.totalPayment}</TableCell>
                                             <TableCell className='text-center'>{t.totalItems}</TableCell>
-                                            <TableCell>{new Date(t.created_at).toLocaleString()}</TableCell>
+                                            <TableCell><FormattedDate date={t.created_at} /></TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
@@ -133,8 +134,8 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                     <TableRow className="border-t font-semibold">
                                         <TableCell>Total</TableCell>
                                         <TableCell>-</TableCell>
-                                        <TableCell>₱ {monthlyTransactions.reduce((sum, t) => sum + Number(t.totalPayment), 0).toFixed(2)}</TableCell>
-                                        <TableCell>{monthlyTransactions.reduce((sum, t) => sum + t.totalItems, 0)}</TableCell>
+                                        <TableCell className='text-center'>₱ {monthlyTransactions.reduce((sum, t) => sum + Number(t.totalPayment), 0).toFixed(2)}</TableCell>
+                                        <TableCell className='text-center'>{monthlyTransactions.reduce((sum, t) => sum + t.totalItems, 0)}</TableCell>
                                         <TableCell>-</TableCell>
                                     </TableRow>
                                 )}
