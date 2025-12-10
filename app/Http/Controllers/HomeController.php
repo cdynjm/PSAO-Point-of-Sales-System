@@ -47,11 +47,11 @@ class HomeController extends Controller
     {
         $items = $request->items;
         $errors = [];
+        $totalItem = 0;
 
         $transaction = Transactions::create([
             'receiptNumber' => 'RCPT-' . strtoupper(uniqid()),
             'totalPayment' => $request->totalPayment,
-            'totalItems' => count($items),
         ]);
 
         foreach ($items as $item) {
@@ -74,7 +74,13 @@ class HomeController extends Controller
                 'sold' => now(),
             ]);
 
+            $totalItem += $item['quantity'];
+
         }
+
+        $transaction->update([
+            'totalItems' => $totalItem,
+        ]);
         
         if (!empty($errors)) {
             return back()->withErrors(['items' => $errors]);

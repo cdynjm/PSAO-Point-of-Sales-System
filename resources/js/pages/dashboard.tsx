@@ -81,8 +81,60 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
             <Head title="Dashboard" />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <div className="grid grid-cols-1 gap-6 p-4 lg:grid-cols-2 xl:grid-cols-4">
+                    {/* Total Sales (Yearly) */}
+                    <Card className="rounded-xl border bg-white shadow-none border-b-3 border-b-primary">
+                        <CardHeader>
+                            <CardTitle className="text-md font-semibold text-primary">Total Sales</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">
+                                ₱ {filteredTransactions.reduce((sum, t) => sum + Number(t.totalPayment), 0).toFixed(2)}
+                            </div>
+                            <p className="mt-1 text-gray-500 text-[13px]">Sales for {selectedYear}</p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Total Items Sold (Yearly) */}
+                    <Card className="rounded-xl border bg-white shadow-none border-b-3 border-b-green-600">
+                        <CardHeader>
+                            <CardTitle className="text-md font-semibold text-primary">Total Items Sold</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{filteredTransactions.reduce((sum, t) => sum + t.totalItems, 0)}</div>
+                            <p className="mt-1 text-gray-500 text-[13px]">Items sold in {selectedYear}</p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Monthly Sales */}
+                    <Card className="rounded-xl border bg-white shadow-none border-b-3 border-b-orange-400">
+                        <CardHeader>
+                            <CardTitle className="text-md font-semibold text-primary">Monthly Sales</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">₱ {dailyData.reduce((sum, d) => sum + Number(d.totalAmount), 0).toFixed(2)}</div>
+                            <p className="mt-1 text-gray-500 text-[13px]">
+                                Sales for {new Date(0, Number(selectedMonth)).toLocaleString('default', { month: 'long' })} {selectedYear}
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Monthly Items Sold */}
+                    <Card className="rounded-xl border bg-white shadow-none border-b-3 border-b-blue-500">
+                        <CardHeader>
+                            <CardTitle className="text-md font-semibold text-primary">Monthly Items Sold</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{dailyData.reduce((sum, d) => sum + d.totalItems, 0)}</div>
+                            <p className="mt-1 text-gray-500 text-[13px]">
+                                Items sold in {new Date(0, Number(selectedMonth)).toLocaleString('default', { month: 'long' })} {selectedYear}
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+
                 {/* YEARLY SALES ANALYTICS */}
-                <Card className="rounded-lg border bg-white shadow-none">
+                <Card className="rounded-lg border-none bg-white shadow-none">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-lg font-semibold text-primary">Yearly Sales Analytics</CardTitle>
                         <Select value={selectedYear} onValueChange={setSelectedYear}>
@@ -124,10 +176,10 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                         <div className="mt-6">
                             <Table>
                                 <TableHeader>
-                                    <TableRow>
+                                    <TableRow className="bg-gray-50">
                                         <TableHead>Month</TableHead>
-                                        <TableHead className='text-center'>Total Amount</TableHead>
-                                        <TableHead className='text-center'>Total Items Sold</TableHead>
+                                        <TableHead className="text-center">Total Amount</TableHead>
+                                        <TableHead className="text-center">Total Items Sold</TableHead>
                                     </TableRow>
                                 </TableHeader>
 
@@ -135,16 +187,18 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                     {yearlyData.map((m, i) => (
                                         <TableRow key={i}>
                                             <TableCell>{m.month}</TableCell>
-                                            <TableCell className='text-center'>₱ {m.totalAmount.toFixed(2)}</TableCell>
-                                            <TableCell className='text-center'>{m.totalItems}</TableCell>
+                                            <TableCell className="text-center">₱ {m.totalAmount.toFixed(2)}</TableCell>
+                                            <TableCell className="text-center">{m.totalItems}</TableCell>
                                         </TableRow>
                                     ))}
 
                                     {/* TOTAL ROW */}
                                     <TableRow className="border-t font-semibold">
                                         <TableCell>Total</TableCell>
-                                        <TableCell className='text-center'>₱ {yearlyData.reduce((sum, m) => sum + m.totalAmount, 0).toFixed(2)}</TableCell>
-                                        <TableCell className='text-center'>{yearlyData.reduce((sum, m) => sum + m.totalItems, 0)}</TableCell>
+                                        <TableCell className="text-center">
+                                            ₱ {yearlyData.reduce((sum, m) => sum + m.totalAmount, 0).toFixed(2)}
+                                        </TableCell>
+                                        <TableCell className="text-center">{yearlyData.reduce((sum, m) => sum + m.totalItems, 0)}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
@@ -153,7 +207,7 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                 </Card>
 
                 {/* MONTHLY SALES ANALYTICS */}
-                <Card className="rounded-lg border bg-white shadow-none">
+                <Card className="rounded-lg border-none bg-white shadow-none">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-lg font-semibold text-primary">Monthly Sales Analytics</CardTitle>
 
@@ -197,10 +251,10 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                         <div className="mt-6">
                             <Table>
                                 <TableHeader>
-                                    <TableRow>
+                                    <TableRow className="bg-gray-50">
                                         <TableHead>Day</TableHead>
-                                        <TableHead className='text-center'>Total Amount</TableHead>
-                                        <TableHead className='text-center'>Total Items Sold</TableHead>
+                                        <TableHead className="text-center">Total Amount</TableHead>
+                                        <TableHead className="text-center">Total Items Sold</TableHead>
                                     </TableRow>
                                 </TableHeader>
 
@@ -208,14 +262,16 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                     {dailyData.map((d, i) => (
                                         <TableRow key={i}>
                                             <TableCell>{d.day}</TableCell>
-                                            <TableCell className='text-center'>₱ {d.totalAmount.toFixed(2)}</TableCell>
-                                            <TableCell className='text-center'>{d.totalItems}</TableCell>
+                                            <TableCell className="text-center">₱ {d.totalAmount.toFixed(2)}</TableCell>
+                                            <TableCell className="text-center">{d.totalItems}</TableCell>
                                         </TableRow>
                                     ))}
                                     <TableRow className="border-t font-semibold">
                                         <TableCell>Total</TableCell>
-                                        <TableCell className='text-center'>₱ {dailyData.reduce((sum, d) => sum + d.totalAmount, 0).toFixed(2)}</TableCell>
-                                        <TableCell className='text-center'>{dailyData.reduce((sum, d) => sum + d.totalItems, 0)}</TableCell>
+                                        <TableCell className="text-center">
+                                            ₱ {dailyData.reduce((sum, d) => sum + d.totalAmount, 0).toFixed(2)}
+                                        </TableCell>
+                                        <TableCell className="text-center">{dailyData.reduce((sum, d) => sum + d.totalItems, 0)}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
