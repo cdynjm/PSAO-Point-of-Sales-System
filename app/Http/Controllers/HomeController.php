@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Http\Controllers\Security\AESCipher;
 use App\Models\Items;
+use App\Models\SalesInventory;
+use App\Models\Transactions;
 use Illuminate\Validation\ValidationException;
 
 class HomeController extends Controller
@@ -46,6 +48,12 @@ class HomeController extends Controller
         $items = $request->items;
         $errors = [];
 
+        $transaction = Transactions::create([
+            'receiptNumber' => 'RCPT-' . strtoupper(uniqid()),
+            'totalPayment' => $request->totalPayment,
+            'totalItems' => count($items),
+        ]);
+
         foreach ($items as $item) {
             $product = Items::where('id', $this->aes->decrypt($item['encrypted_id']))->first();
 
@@ -56,6 +64,16 @@ class HomeController extends Controller
             }
 
             $product->decrement('stocks', $item['quantity']);
+
+            SalesInventory::create([
+                'items_id' => $product->id,
+                'transactions_id' => $transaction->id,
+                'quantity' => $item['quantity'],
+                'price' => $product->price,
+                'barcode' => $product->barcode,
+                'sold' => now(),
+            ]);
+
         }
         
         if (!empty($errors)) {

@@ -102,6 +102,8 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
         }
     };
 
+    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
     const removeItem = (barcode: string) => {
         setItems((items) => {
             return items
@@ -122,6 +124,7 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
                     price: item.price,
                     quantity: item.quantity,
                 })),
+                totalPayment: total,
             },
             {
                 onSuccess: () => {
@@ -152,7 +155,6 @@ export default function BarcodeScannerPage({ auth }: BarcodeScannerPageProps) {
         );
     };
 
-    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50">

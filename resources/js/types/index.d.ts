@@ -42,18 +42,37 @@ export interface User {
     [key: string]: unknown; // This allows for additional properties...
 }
 
-export interface Items {
-    encrypted_id: string;
-    productName: string;
-    stocks: number;
-    price: number;
-    barcode: string;
-}
-
 export interface ProductDetails {
     encrypted_id: string;
     barcode: string;
     name: string;
     price: number;
     quantity: number;
+}
+export interface Items {
+    encrypted_id: string;
+    productName: string;
+    stocks: number;
+    price: number;
+    barcode: string;
+    salesInventory?: SalesInventory[];
+}
+
+export interface Transactions {
+    encrypted_id: string;
+    receiptNumber: string;
+    totalPayment: number;
+    totalItems: number;
+    created_at: string;
+    salesInventory?: SalesInventory[];
+}
+export interface SalesInventory {
+    encrypted_id: string;
+    items_id: number;
+    transactions_id: number;
+    quantity: number;
+    price: number;
+    barcode: string;
+    sold: string;
+    items?: Items;
 }

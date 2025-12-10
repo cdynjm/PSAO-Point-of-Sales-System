@@ -1,6 +1,6 @@
 import { SidebarInset } from '@/components/ui/sidebar';
 import { Link, usePage } from '@inertiajs/react';
-import { Home, PackageSearch, User } from 'lucide-react';
+import { Home, PackageSearch, ScanLineIcon } from 'lucide-react';
 import * as React from 'react';
 
 interface AppContentProps extends React.ComponentProps<'main'> {
@@ -31,7 +31,7 @@ export function AppContent({ variant = 'header', children, ...props }: AppConten
     const navItems: NavItem[] = [
         { label: 'Home', href: route('dashboard'), icon: Home },
         { label: 'Items', href: route('items'), icon: PackageSearch },
-        { label: 'Profile', href: route('profile.edit'), icon: User },
+        { label: 'Scanner', href: route('home'), icon: ScanLineIcon },
     ];
 
     // currentPath will be the pathname portion of the current URL (no query/hash, no trailing slash)

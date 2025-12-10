@@ -6,9 +6,9 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <link rel="icon" href="/pos-logo.png" sizes="any">
-        <link rel="icon" href="/pos-logo.png" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/pos-logo.png">
+        <link rel="icon" href="{{ asset('pos-logo.png') }}" sizes="any">
+        <link rel="icon" href="{{ asset('pos-logo.png') }}" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="{{ asset('pos-logo.png') }}">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />

@@ -11,4 +11,9 @@ class Items extends Model
 
     protected $table = 'items';
     protected $fillable = ['productName', 'stocks', 'price', 'barcode'];
+
+    public function salesInventories()
+    {
+        return $this->hasMany(SalesInventory::class, 'items_id');
+    }
 }
