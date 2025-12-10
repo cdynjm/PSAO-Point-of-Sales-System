@@ -103,9 +103,9 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>#</TableHead>
-                                    <TableHead>Receipt #</TableHead>
-                                    <TableHead className='text-center'>Total Amount</TableHead>
-                                    <TableHead className='text-center'>Total Items</TableHead>
+                                    <TableHead className='text-nowrap'>Receipt #</TableHead>
+                                    <TableHead className='text-center text-nowrap'>Total Amount</TableHead>
+                                    <TableHead className='text-center text-nowrap'>Total Items</TableHead>
                                     <TableHead>Date Processed</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -115,10 +115,10 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                     monthlyTransactions.map((t, index) => (
                                         <TableRow key={t.encrypted_id}>
                                             <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{t.receiptNumber}</TableCell>
-                                            <TableCell className='text-center'>₱ {t.totalPayment}</TableCell>
-                                            <TableCell className='text-center'>{t.totalItems}</TableCell>
-                                            <TableCell><FormattedDate date={t.created_at} /></TableCell>
+                                            <TableCell className='text-nowrap'>{t.receiptNumber}</TableCell>
+                                            <TableCell className='text-center text-nowrap'>₱ {t.totalPayment}</TableCell>
+                                            <TableCell className='text-center text-nowrap'>{t.totalItems}</TableCell>
+                                            <TableCell className='text-nowrap'><FormattedDate date={t.created_at} /></TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
@@ -188,8 +188,8 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Month</TableHead>
-                                        <TableHead>Total Amount</TableHead>
-                                        <TableHead>Total Items Sold</TableHead>
+                                        <TableHead className='text-center'>Total Amount</TableHead>
+                                        <TableHead className='text-center'>Total Items Sold</TableHead>
                                     </TableRow>
                                 </TableHeader>
 
@@ -197,16 +197,16 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                     {yearlyData.map((m, i) => (
                                         <TableRow key={i}>
                                             <TableCell>{m.month}</TableCell>
-                                            <TableCell>₱ {m.totalAmount.toFixed(2)}</TableCell>
-                                            <TableCell>{m.totalItems}</TableCell>
+                                            <TableCell className='text-center'>₱ {m.totalAmount.toFixed(2)}</TableCell>
+                                            <TableCell className='text-center'>{m.totalItems}</TableCell>
                                         </TableRow>
                                     ))}
 
                                     {/* TOTAL ROW */}
                                     <TableRow className="border-t font-semibold">
                                         <TableCell>Total</TableCell>
-                                        <TableCell>₱ {yearlyData.reduce((sum, m) => sum + m.totalAmount, 0).toFixed(2)}</TableCell>
-                                        <TableCell>{yearlyData.reduce((sum, m) => sum + m.totalItems, 0)}</TableCell>
+                                        <TableCell className='text-center'>₱ {yearlyData.reduce((sum, m) => sum + m.totalAmount, 0).toFixed(2)}</TableCell>
+                                        <TableCell className='text-center'>{yearlyData.reduce((sum, m) => sum + m.totalItems, 0)}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
@@ -261,8 +261,8 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Day</TableHead>
-                                        <TableHead>Total Amount</TableHead>
-                                        <TableHead>Total Items Sold</TableHead>
+                                        <TableHead className='text-center'>Total Amount</TableHead>
+                                        <TableHead className='text-center'>Total Items Sold</TableHead>
                                     </TableRow>
                                 </TableHeader>
 
@@ -270,14 +270,14 @@ export default function Dashboard({ auth, transactions, years, months }: Dashboa
                                     {dailyData.map((d, i) => (
                                         <TableRow key={i}>
                                             <TableCell>{d.day}</TableCell>
-                                            <TableCell>₱ {d.totalAmount.toFixed(2)}</TableCell>
-                                            <TableCell>{d.totalItems}</TableCell>
+                                            <TableCell className='text-center'>₱ {d.totalAmount.toFixed(2)}</TableCell>
+                                            <TableCell className='text-center'>{d.totalItems}</TableCell>
                                         </TableRow>
                                     ))}
                                     <TableRow className="border-t font-semibold">
                                         <TableCell>Total</TableCell>
-                                        <TableCell>₱ {dailyData.reduce((sum, d) => sum + d.totalAmount, 0).toFixed(2)}</TableCell>
-                                        <TableCell>{dailyData.reduce((sum, d) => sum + d.totalItems, 0)}</TableCell>
+                                        <TableCell className='text-center'>₱ {dailyData.reduce((sum, d) => sum + d.totalAmount, 0).toFixed(2)}</TableCell>
+                                        <TableCell className='text-center'>{dailyData.reduce((sum, d) => sum + d.totalItems, 0)}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
