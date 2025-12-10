@@ -335,7 +335,7 @@ export default function Items({ auth, items }: ItemsProps) {
                                         <span className="ml-2">{item.productName}</span>
                                     </TableCell>
 
-                                    <TableCell className="p-2 text-center">{item.stocks}</TableCell>
+                                    <TableCell className="p-2 text-center font-bold text-lg text-primary bg-green-100">{item.stocks}</TableCell>
 
                                     <TableCell className="p-2 text-center">₱{Number(item.price).toFixed(2)}</TableCell>
 
