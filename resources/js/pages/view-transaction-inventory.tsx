@@ -22,8 +22,6 @@ export default function ViewTransactionInventory({ auth, transaction, encrypted_
 
     const sales = transaction.salesinventories ?? [];
 
-    console.log(sales)
-
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="View Item Inventory" />

@@ -14,10 +14,9 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Items, type User } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -153,8 +152,12 @@ export default function Items({ auth, items }: ItemsProps) {
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="flex items-center justify-between">
-                    <Label className="text-sm font-bold text-gray-500">List of Items</Label>
-
+                    <div className="flex flex-col gap-1">
+                        <Label className="text-sm font-bold text-gray-500">List of Items</Label>
+                        <small className='flex items-center gap-2'>
+                            <span className='text-gray-500'>Total Items:</span> <span className="text-lg font-bold text-primary">{items.length}</span>
+                        </small>
+                    </div>
                     {/* Add Dialog */}
                     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                         <DialogTrigger asChild>
@@ -333,12 +336,16 @@ export default function Items({ auth, items }: ItemsProps) {
                                     <TableCell className="p-2 text-center">{index + 1}</TableCell>
 
                                     <TableCell className={`p-2 text-start whitespace-nowrap ${item.stocks !== 0 ? '' : 'text-red-600'}`}>
-                                        <Link href={route('items.view', {encrypted_id: item.encrypted_id})}>
+                                        <Link href={route('items.view', { encrypted_id: item.encrypted_id })}>
                                             <span className="ml-2">{item.productName}</span>
                                         </Link>
                                     </TableCell>
 
-                                    <TableCell className={`p-2 text-center font-bold text-lg text-primary ${item.stocks !== 0 ? 'bg-green-100' : 'bg-red-200'}` }>{item.stocks}</TableCell>
+                                    <TableCell
+                                        className={`p-2 text-center text-lg font-bold text-primary ${item.stocks !== 0 ? 'bg-green-100' : 'bg-red-200'}`}
+                                    >
+                                        {item.stocks}
+                                    </TableCell>
 
                                     <TableCell className="p-2 text-center">₱{Number(item.price).toFixed(2)}</TableCell>
 
