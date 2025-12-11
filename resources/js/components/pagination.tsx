@@ -45,7 +45,7 @@ export default function Pagination({ links }: { links: PaginationLink[] }) {
                 {/* Prev Button */}
                 <Link
                     href={links[0].url || "#"}
-                    className="rounded px-2 py-1 bg-gray-200 disabled:opacity-40"
+                    className="rounded px-3 py-1 bg-gray-200 disabled:opacity-40"
                     disabled={!links[0].url}
                 >
                     <ChevronLeft className="w-4 h-4" />
@@ -56,7 +56,7 @@ export default function Pagination({ links }: { links: PaginationLink[] }) {
                     <>
                         <Link
                             href={pages[0].url || "#"}
-                            className="rounded px-2 py-1 bg-gray-200"
+                            className="rounded px-3 py-1 bg-gray-200"
                             dangerouslySetInnerHTML={{ __html: pages[0].label }}
                         />
                         <span className="px-1 text-gray-400">...</span>
@@ -68,7 +68,7 @@ export default function Pagination({ links }: { links: PaginationLink[] }) {
                     <Link
                         key={idx}
                         href={p.url || "#"}
-                        className={`rounded px-2 py-1 ${
+                        className={`rounded px-3 py-1 ${
                             p.active
                                 ? "bg-primary text-white"
                                 : "bg-gray-200 text-gray-700"
@@ -83,7 +83,7 @@ export default function Pagination({ links }: { links: PaginationLink[] }) {
                         <span className="px-1 text-gray-400">...</span>
                         <Link
                             href={pages[pages.length - 1].url || "#"}
-                            className="rounded px-2 py-1 bg-gray-200"
+                            className="rounded px-3 py-1 bg-gray-200"
                             dangerouslySetInnerHTML={{
                                 __html: pages[pages.length - 1].label,
                             }}
@@ -94,7 +94,7 @@ export default function Pagination({ links }: { links: PaginationLink[] }) {
                 {/* Next Button */}
                 <Link
                     href={links[links.length - 1].url || "#"}
-                    className="rounded px-2 py-1 bg-gray-200 disabled:opacity-40"
+                    className="rounded px-3 py-1 bg-gray-200 disabled:opacity-40"
                     disabled={!links[links.length - 1].url}
                 >
                     <ChevronRight className="w-4 h-4" />
