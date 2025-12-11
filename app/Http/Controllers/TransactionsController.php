@@ -16,37 +16,39 @@ class TransactionsController extends Controller
         $this->aes = $aes;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $year = $request->year ?? date('Y');
+        $month = $request->month ?? date('n');
+
         $transactions = Transactions::with('salesInventories')
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($t) {
+            ->paginate(10)
+            ->through(function ($t) {
                 $t->encrypted_id = $this->aes->encrypt($t->id);
                 return $t;
             });
 
-        $years = $transactions->map(function ($t) {
-            return date('Y', strtotime($t->created_at));
-        })->unique()->values()->toArray();
+        $years = Transactions::selectRaw("YEAR(created_at) as year")
+            ->distinct()
+            ->pluck('year');
 
-        $months = $transactions->groupBy(function ($t) {
-            return date('Y', strtotime($t->created_at));
-        })->map(function ($yearGroup) {
-            return $yearGroup->map(function ($t) {
-                return date('n', strtotime($t->created_at));
-            })
-            ->unique()
-            ->values()
-            ->toArray();
-        });
+        $months = Transactions::selectRaw("YEAR(created_at) as year, MONTH(created_at) as month")
+            ->get()
+            ->groupBy('year')
+            ->map(fn ($rows) => $rows->pluck('month')->unique()->values());
 
         return Inertia::render('transactions', [
             'transactions' => $transactions,
             'years' => $years,
             'months' => $months,
+            'initialYear' => $year,
+            'initialMonth' => $month,
         ]);
     }
+
 
     public function viewTransaction(Request $request)
     {
