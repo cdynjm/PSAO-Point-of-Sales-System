@@ -17,6 +17,7 @@ import { type BreadcrumbItem, type Items, type User } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -332,7 +333,9 @@ export default function Items({ auth, items }: ItemsProps) {
                                     <TableCell className="p-2 text-center">{index + 1}</TableCell>
 
                                     <TableCell className={`p-2 text-start whitespace-nowrap ${item.stocks !== 0 ? '' : 'text-red-600'}`}>
-                                        <span className="ml-2">{item.productName}</span>
+                                        <Link href={route('items.view', {encrypted_id: item.encrypted_id})}>
+                                            <span className="ml-2">{item.productName}</span>
+                                        </Link>
                                     </TableCell>
 
                                     <TableCell className={`p-2 text-center font-bold text-lg text-primary ${item.stocks !== 0 ? 'bg-green-100' : 'bg-red-200'}` }>{item.stocks}</TableCell>

@@ -56,4 +56,43 @@ class ItemsController extends Controller
         $id = $this->aes->decrypt($request->encrypted_id);
         Items::where('id', $id)->delete();
     }
+
+    public function viewItem(Request $request)
+    {
+        $id = $this->aes->decrypt($request->encrypted_id);
+        
+        $item = Items::with(['salesinventories' => function($q) {
+                $q->orderBy('sold', 'desc');
+            }, 'salesinventories.transaction'])
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $item->salesinventories->map(function ($sale) {
+            $sale->encrypted_id = $this->aes->encrypt($sale->id);
+            return $sale;
+        });
+
+        $years = $item->salesinventories
+            ->map(fn($s) => date('Y', strtotime($s->sold)))
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $months = $item->salesinventories
+            ->groupBy(fn($s) => date('Y', strtotime($s->sold)))
+            ->map(fn($group) => $group
+                ->map(fn($s) => date('n', strtotime($s->sold)))
+                ->unique()
+                ->values()
+                ->toArray()
+            );
+
+        return Inertia::render('view-item-inventory', [
+            'encrypted_id' => $request->encrypted_id,
+            'item' => $item,
+            'years' => $years,
+            'months' => $months,
+        ]);
+
+    }
 }

@@ -15,6 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/items', [ItemsController::class, 'index'])->name('items');
+    Route::get('/items/{encrypted_id}', [ItemsController::class, 'viewItem'])->name('items.view');
     Route::post('/items', [ItemsController::class, 'store'])->name('items.store');
     Route::patch('/items', [ItemsController::class, 'update'])->name('items.update');
     Route::delete('/items', [ItemsController::class, 'destroy'])->name('items.destroy');

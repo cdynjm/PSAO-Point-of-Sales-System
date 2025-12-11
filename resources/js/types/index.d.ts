@@ -55,16 +55,8 @@ export interface Items {
     stocks: number;
     price: number;
     barcode: string;
-    salesInventory?: SalesInventory[];
-}
-
-export interface Transactions {
-    encrypted_id: string;
-    receiptNumber: string;
-    totalPayment: number;
-    totalItems: number;
     created_at: string;
-    salesInventory?: SalesInventory[];
+    salesinventories?: SalesInventory[];
 }
 export interface SalesInventory {
     encrypted_id: string;
@@ -75,5 +67,14 @@ export interface SalesInventory {
     barcode: string;
     sold: string;
     items?: Items;
+    transaction?: Transactions
+}
+export interface Transactions {
+    encrypted_id: string;
+    receiptNumber: string;
+    totalPayment: number;
+    totalItems: number;
+    created_at: string;
+    salesInventory?: SalesInventory[];
 }
 
