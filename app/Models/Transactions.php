@@ -12,7 +12,7 @@ class Transactions extends Model
     protected $table = 'transactions';
     protected $fillable = ['receiptNumber', 'totalPayment', 'totalItems'];
 
-    public function salesInventories()
+    public function salesinventories()
     {
         return $this->hasMany(SalesInventory::class, 'transactions_id');
     }

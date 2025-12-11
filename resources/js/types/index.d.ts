@@ -66,7 +66,7 @@ export interface SalesInventory {
     price: number;
     barcode: string;
     sold: string;
-    items?: Items;
+    item?: Items;
     transaction?: Transactions
 }
 export interface Transactions {
@@ -75,6 +75,6 @@ export interface Transactions {
     totalPayment: number;
     totalItems: number;
     created_at: string;
-    salesInventory?: SalesInventory[];
+    salesinventories?: SalesInventory[];
 }
 

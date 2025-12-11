@@ -6,6 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Transactions, User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import { Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -94,7 +95,9 @@ export default function Transaction({ auth, transactions, years, months }: Trans
                             monthlyTransactions.map((t, index) => (
                                 <TableRow key={t.encrypted_id}>
                                     <TableCell>{index + 1}</TableCell>
-                                    <TableCell className="text-nowrap">{t.receiptNumber}</TableCell>
+                                    <TableCell className="text-nowrap">
+                                        <Link href={route('transaction.view', {encrypted_id: t.encrypted_id})}>{t.receiptNumber}</Link>
+                                    </TableCell>
                                     <TableCell className="text-center text-nowrap">₱ {t.totalPayment}</TableCell>
                                     <TableCell className="text-center text-nowrap">{t.totalItems}</TableCell>
                                     <TableCell className="text-nowrap">

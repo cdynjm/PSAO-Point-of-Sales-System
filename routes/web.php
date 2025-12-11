@@ -21,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/items', [ItemsController::class, 'destroy'])->name('items.destroy');
 
     Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions');
+    Route::get('/transactions/{encrypted_id}', [TransactionsController::class, 'viewTransaction'])->name('transaction.view');
 });
 
 require __DIR__.'/settings.php';

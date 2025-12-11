@@ -47,4 +47,23 @@ class TransactionsController extends Controller
             'months' => $months,
         ]);
     }
+
+    public function viewTransaction(Request $request)
+    {
+        $id = $this->aes->decrypt($request->encrypted_id);
+
+        $transaction = Transactions::with('salesinventories.item')
+            ->where('id', $id)
+            ->firstOrFail();
+        
+        $transaction->salesinventories->map(function ($sale) {
+            $sale->encrypted_id = $this->aes->encrypt($sale->id);
+            return $sale;
+        });
+
+        return Inertia::render('view-transaction-inventory', [
+            'encrypted_id' => $request->encrypted_id,
+            'transaction' => $transaction
+        ]);
+    }
 }
