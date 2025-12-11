@@ -6,6 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Items, User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import { ShoppingBasket } from 'lucide-react';
 
 interface DashboardProps {
     auth: { user: User };
@@ -44,9 +45,10 @@ export default function Dashboard({ auth, item, years, months, encrypted_id }: D
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
             <Head title="View Item Inventory" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <Label className="text-md font-bold text-gray-500">{item.productName}</Label>
-                <div className="flex flex-row gap-4">
+            <div className="flex h-full flex-1 flex-col gap-3 overflow-x-auto rounded-xl p-4">
+                <Label className="text-md font-bold text-gray-500 flex items-center gap-2"><ShoppingBasket className='text-blue-500' /> <span>{item.productName}</span></Label>
+                <Label className={`text-[13px] ${item.stocks === 0 ? 'text-red-600' : 'text-green-600'}`}>{ item.stocks === 0 ? 'Out of Stocks!' : `Stocks: ${item.stocks}`}</Label>
+                <div className="flex flex-row gap-4 mb-2">
                     <Select value={selectedYear} onValueChange={setSelectedYear}>
                         <SelectTrigger className="w-40">
                             <SelectValue placeholder="Select Year" />
@@ -80,7 +82,7 @@ export default function Dashboard({ auth, item, years, months, encrypted_id }: D
                         <TableRow className="bg-gray-50">
                             <TableHead>#</TableHead>
                             <TableHead className="text-nowrap">Receipt #</TableHead>
-                            <TableHead className="text-center text-nowrap">Subtotal</TableHead>
+                            <TableHead className="text-center text-nowrap">Amount Paid</TableHead>
                             <TableHead className="text-center text-nowrap">Quantity</TableHead>
                             <TableHead>Date Processed</TableHead>
                         </TableRow>
