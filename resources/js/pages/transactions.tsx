@@ -21,7 +21,7 @@ interface TransactionProps {
     months: Record<string, number[]>;
 }
 
-export default function Dashboard({ auth, transactions, years, months }: TransactionProps) {
+export default function Transaction({ auth, transactions, years, months }: TransactionProps) {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
 

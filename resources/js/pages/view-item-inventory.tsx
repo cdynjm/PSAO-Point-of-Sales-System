@@ -16,7 +16,7 @@ interface DashboardProps {
     encrypted_id: string;
 }
 
-export default function Dashboard({ auth, item, years, months, encrypted_id }: DashboardProps) {
+export default function ViewItemInventory({ auth, item, years, months, encrypted_id }: DashboardProps) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'View Item Inventory',
