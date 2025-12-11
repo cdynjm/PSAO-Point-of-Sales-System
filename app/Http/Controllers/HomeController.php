@@ -68,7 +68,7 @@ class HomeController extends Controller
 
         if(empty($errors)) {
             $transaction = Transactions::create([
-                'receiptNumber' => 'RCPT-' . strtoupper(uniqid()),
+                'receiptNumber' => 'RCPT-' . now()->format('YmdHis'),
                 'totalPayment' => $request->totalPayment,
             ]);
 
