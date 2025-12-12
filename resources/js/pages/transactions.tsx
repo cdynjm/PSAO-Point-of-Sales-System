@@ -49,7 +49,7 @@ export default function Transaction({ auth, transactions, years, months, initial
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <Label className="text-sm font-bold text-gray-500">
                     Transactions for {new Date(0, Number(selectedMonth) - 1).toLocaleString('default', { month: 'long' })} {selectedYear}
-                </Label>
+                </Label>  
 
                 <div className="flex flex-row gap-4">
                     {/* YEAR */}
