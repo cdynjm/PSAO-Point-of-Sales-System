@@ -28,7 +28,7 @@ export default function Transaction({ auth, transactions, years, months, initial
     const [selectedYear, setSelectedYear] = useState(String(initialYear));
     const [selectedMonth, setSelectedMonth] = useState(String(initialMonth));
 
-    const reload = (year: string, month: string) => {
+    const reload = (year: string, month: string) => { 
         router.get(
             route('transactions'),
             {
