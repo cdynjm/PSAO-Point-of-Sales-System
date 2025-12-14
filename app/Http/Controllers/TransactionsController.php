@@ -49,7 +49,6 @@ class TransactionsController extends Controller
         ]);
     }
 
-
     public function viewTransaction(Request $request)
     {
         $id = $this->aes->decrypt($request->encrypted_id);
