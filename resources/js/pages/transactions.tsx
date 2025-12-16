@@ -40,7 +40,7 @@ export default function Transaction({ auth, transactions, years, months, initial
                 replace: true,
             },
         );
-    };
+    }; 
 
     return (
         <AppLayout breadcrumbs={breadcrumbs} auth={auth}>
