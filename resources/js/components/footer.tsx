@@ -30,7 +30,7 @@ export default function Footer({ className, year = new Date().getFullYear() }: F
                     </div>
 
                     <a
-                        href="https://www.facebook.com/jemuel.cadayona.94"
+                        href="https://www.facebook.com/jem.cdyn"
                         target="_blank"
                         className="mt-2 inline-block rounded bg-primary px-3 py-1 text-[11px] text-white uppercase hover:bg-green-700"
                     >
